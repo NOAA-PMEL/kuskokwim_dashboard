@@ -1,0 +1,6 @@
+[project]
+name = "kuskokwim_dashboard"
+version = "0.1.1"
+
+[tool.setuptools.packages.find]
+where = ["src"] # Tells the installer to look for packages inside the 'src' directory

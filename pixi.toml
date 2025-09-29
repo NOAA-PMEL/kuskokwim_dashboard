@@ -1,0 +1,37 @@
+# pixi.toml
+[project]
+name = "kuskokwim_dashboard"
+version = "0.1.0"
+description = "A dashboard to fetch, process, and visualize Kuskokwim Bay sea ice data."
+channels = ["conda-forge"] # Use conda-forge as the primary channel
+platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
+
+[tasks]
+# Defines runnable scripts. Run with `pixi run start`
+start = "python scripts/run_analysis.py"
+test = "pytest"
+lint = "ruff check ."
+
+[dependencies]
+# Core runtime dependencies from conda
+numpy = ">=1,<2"
+pandas = "==2.2.3"
+pyarrow = "==16.1.0"
+python = "==3.12"
+folium = "==0.19.6"
+geopandas = "==1.0.1"
+matplotlib = ">=3.8.0"
+shapely = ">=2.0.0"
+dask = "==2024.12.1"
+
+[pypi-dependencies]
+# Dependencies best installed from PyPI
+arcgis = ">=2.4.1.3"
+kuskokwim_dashboard = { path = ".", editable = true }
+
+[build-dependencies]
+# Tools for development only, not needed for running the main script
+pytest = ">=8.0.0"
+ruff = ">=0.4.0"
+
+
