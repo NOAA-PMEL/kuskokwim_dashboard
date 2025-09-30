@@ -15,9 +15,9 @@ jobs:
 
     - name: Set up Pixi
       # 👇 Use the official GitHub action to install and cache Pixi
-      uses: prefix-dev/setup-pixi@v0.8
+      uses: prefix-dev/setup-pixi@v0.9.1
       with:
-        pixi-version: v0.20.0 # Pin the version for consistency
+        pixi-version: v0.55.0 # Pin the version for consistency
 
     - name: Install dependencies
       # 👇 pixi install uses the lockfile for a fast, reproducible install
