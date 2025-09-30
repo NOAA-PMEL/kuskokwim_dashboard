@@ -1,5 +1,12 @@
 # kuskokwim_dashboard
 
+## Usage
+
+The contents of the ***output*** folder can be hosted on any web hosting service
+
+The python package otherwise is used to build updated prediction information for the timeseries plots and additional pannels by updating the data files and then running the `pixi run start` runner via pixi.sh
+
+
 ################
 
 Legal Disclaimer
