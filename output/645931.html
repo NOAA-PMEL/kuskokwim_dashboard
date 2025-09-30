@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>ADFG Region 645931</title>
+
+    <style>
+      /* The .dark-mode class is added to the body by JavaScript */
+      body.dark-mode {
+        background-color: #1a1a1a;
+        color: #d9534f; /* A readable, classic red */
+      }
+      .dark-mode h1, .dark-mode h2 {
+        color: #e60000; /* A brighter red for headings */
+      }
+      /* Override Bootstrap component styles in dark mode */
+      .dark-mode .bg-light,
+      .dark-mode .bg-secondary-subtle {
+        background-color: #2c2c2c !important; /* Use !important to override Bootstrap's utilities */
+      }
+      .dark-mode .border {
+        border-color: #555 !important;
+      }
+      .dark-mode .form-check-label {
+        color: #fff; /* Make the toggle label white for contrast */
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="container mt-4">
+      
+      <div class="form-check form-switch mb-4">
+        <input class="form-check-input" type="checkbox" role="switch" id="darkModeToggle">
+        <label class="form-check-label" for="darkModeToggle">Night Mode</label>
+      </div>
+
+      <h1 class="mb-4 text-center">Kuskowkim Temperature Dashboard - ADFG 645931</h1>
+
+      <div class="row">
+        
+        <div class="col-md-8">
+          <div class="p-4 border bg-light rounded-3">
+            
+            <img src="645931.image.png" height="150px"/>
+
+          </div>
+        </div>
+        
+        <div class="col-md-4">
+          <div class="p-4 border bg-light rounded-3">
+            <h2>Second Column: Some Information</h2>
+
+          </div>
+        </div>
+
+      </div>
+
+      <div class="row mt-4">
+        
+        <div class="col-12">
+          <div class="p-4 border bg-secondary-subtle rounded-3">
+            <h2>Further Details</h2>
+            <p>Product created by EcoFOCI.</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      const currentTheme = localStorage.getItem('theme');
+
+      // On page load, check if a theme is saved in localStorage
+      if (currentTheme) {
+        document.body.classList.add(currentTheme);
+        if (currentTheme === 'dark-mode') {
+          darkModeToggle.checked = true;
+        }
+      }
+
+      // Add event listener to the toggle switch
+      darkModeToggle.addEventListener('change', function() {
+        // Toggle the .dark-mode class on the body
+        document.body.classList.toggle('dark-mode');
+
+        // Save the user's preference to localStorage
+        let theme = 'light-mode'; // Default to light
+        if (document.body.classList.contains('dark-mode')) {
+          theme = 'dark-mode';
+        }
+        localStorage.setItem('theme', theme);
+      });
+    </script>
+  </body>
+</html>
