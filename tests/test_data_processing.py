@@ -1,6 +1,5 @@
 # tests/test_data_processing.py
 import pytest
-from shapely.geometry import Point
 from kuskokwim_dashboard.data_processing import convert_to_360_transform
 
 # Use pytest.mark.parametrize to test multiple scenarios easily
