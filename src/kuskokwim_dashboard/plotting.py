@@ -1,3 +1,4 @@
+# arctic_ice_forecaster/plotting.py
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
@@ -36,6 +37,7 @@ def timeseries_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
 # Assuming adfg_regions, reg_df, and reg_pred_df are defined in your environment
 
 def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
+    """Generates plotly timeseries plots for each ADFG region."""
     reg_df = {reg_id:df[df.RegionID.astype(str)==reg_id] for reg_id in config.ADFG_REGIONS}
     reg_pred_df = {reg_id:pdf[pdf.RegionID.astype(str)==reg_id] for reg_id in config.ADFG_REGIONS}
 
