@@ -35,6 +35,7 @@ def main():
     pdf = data_processing.load_temperature_data('data/kuskokwim_projected_data.csv')
 
     plotting.timeseries_plots(df, pdf)
-
+    plotting.timeseries_plotly_plots(df, pdf)
+    
 if __name__ == "__main__":
     main()
