@@ -162,4 +162,4 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
         fig.show()
 
         # Export commands
-        fig.write_html(f"{reg_id}.plotly.html")
+        fig.write_html(f"{config.OUTPUT_DIR}/{reg_id}.plotly.html")

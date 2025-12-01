@@ -1,7 +1,7 @@
 # pixi.toml
 [workspace]
 name = "kuskokwim_dashboard"
-version = "0.2.0"
+version = "0.2.1"
 description = "A dashboard to fetch, process, and visualize Kuskokwim Bay sea ice data."
 channels = ["conda-forge"] # Use conda-forge as the primary channel
 platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
@@ -26,6 +26,7 @@ dask = "==2024.12.1"
 # Tools for development only, not needed for running the main script
 pytest = ">=8.0.0"
 ruff = ">=0.4.0"
+plotly = ">=6.5.0,<7"
 
 [pypi-dependencies]
 # Dependencies best installed from PyPI
