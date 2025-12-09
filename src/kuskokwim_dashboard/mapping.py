@@ -107,3 +107,15 @@ def add_mooring_marker(m: folium.Map):
         popup="<i>M2 \"Peggy\" Mooring</i>",
         tooltip="Click for more info",
     ).add_to(m)
+
+@staticmethod
+def get_sst_legend() -> str:
+    """builds url to retrieve legend as png"""
+    sat_sst_time = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=6)).strftime('%Y-%m-%dT00:00:00Z')
+    legend_url = (
+        f"{config.NOAA_SST_PNG_URL}?"
+        f"sst%5B({sat_sst_time})%5D%5B(0.0)%5D%5B(-45.0):(65.0)%5D%5B(-180.0):(179.975)%5D"
+        f"&.draw=surface&.vars=longitude%7Clatitude%7Csst"
+        f"&.colorBar=%7C%7C%7C%7C%7C&.bgColor=0xffccccff&.legend=Only"
+    )
+    return legend_url

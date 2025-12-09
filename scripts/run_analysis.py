@@ -1,6 +1,7 @@
 # scripts/run_analysis.py
 import logging
 import folium
+import urllib.request
 # 👇 Imports now use the new package name
 from kuskokwim_dashboard import config, data_processing, mapping, plotting
 
@@ -27,6 +28,18 @@ def main():
     mapping.add_mooring_marker(m1)
     folium.LayerControl().add_to(m1)
     m1.save(config.OUTPUT_DIR / "footprint.html")
+
+    logging.info("Generating 'noaa_folium_map.html' map...")
+    m2 = mapping.create_base_map()
+    mapping.add_ice_concentration_layer(m2, gdf_conc_360.drop(columns=['idp_filedate','idp_ingestdate']))
+    mapping.add_ice_prediction_layer(m2, gdf_pred_360.drop(columns=['idp_filedate','idp_ingestdate']))
+    mapping.add_adfg_grid_layer(m2)
+    mapping.add_sst_wms_layer(m2)
+    folium.LayerControl().add_to(m2)
+    m2.save(config.OUTPUT_DIR / "noaa_folium_map.html")
+    logging.info("Getting SST legend image from url.")
+    legend_url = mapping.get_sst_legend()
+    urllib.request.urlretrieve(legend_url,'images/erdMBsstd8dayF_LonPM180.png')
 
     logging.info("Generating region images...")
 
