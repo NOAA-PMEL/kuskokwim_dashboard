@@ -12,8 +12,8 @@ IMAGE_DIR = PROJ_DIR / "images"
 # --- Data Sources ---
 NOAA_ICE_CHART_URL = "https://mapservices.weather.noaa.gov/vector/rest/services/obs/asip_ice_chart/MapServer"
 GEBCO_CONTOUR_TILES_URL = "https://tiles.arcgis.com/tiles/C8EMgrsFcRFL6LrL/arcgis/rest/services/GEBCO_contours/MapServer/tile/{z}/{y}/{x}"
-NOAA_SST_WMS_URL = "https://coastwatch.pfeg.noaa.gov/erddap/wms/erdMBsstd8dayF_LonPM180/request"
-NOAA_SST_PNG_URL = "https://coastwatch.pfeg.noaa.gov/erddap/griddap/erdMBsstd8dayF_LonPM180.transparentPng"
+NOAA_SST_WMS_URL = "https://coastwatch.pfeg.noaa.gov/erddap/wms/erdMH1sstd8day_R2022SQNotMasked/request"
+NOAA_SST_PNG_URL = "https://coastwatch.pfeg.noaa.gov/erddap/griddap/erdMH1sstd8day_R2022SQNotMasked.transparentPng"
 
 # --- Map Settings ---
 INITIAL_MAP_LOCATION = (59.75, -164.25)

@@ -39,7 +39,7 @@ def main():
     m2.save(config.OUTPUT_DIR / "noaa_folium_map.html")
     logging.info("Getting SST legend image from url.")
     legend_url = mapping.get_sst_legend()
-    urllib.request.urlretrieve(legend_url,'images/erdMBsstd8dayF_LonPM180.png')
+    urllib.request.urlretrieve(legend_url,'images/erdMH1sstd8day_R2022SQNotMasked.png')
 
     logging.info("Generating region images...")
 

@@ -91,7 +91,7 @@ def add_sst_wms_layer(m: folium.Map):
     noaa_layer = folium.WmsTileLayer(
         url=config.NOAA_SST_WMS_URL,
         name='NOAA Sea Surface Temp',
-        layers='erdMBsstd8dayF_LonPM180:sst',
+        layers='erdMH1sstd8day_R2022SQNotMasked:sst',
         fmt='image/png',
         transparent=True,
         attr='NOAA NMFS SWFSC ERD',
