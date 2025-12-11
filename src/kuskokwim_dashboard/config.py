@@ -21,4 +21,8 @@ INITIAL_MAP_ZOOM = 4
 ADFG_GRID_FILE = DATA_DIR / "grid_ADFG.geojson"
 
 # --- Analysis Parameters ---
-ADFG_REGIONS = ['625831', '635830', '635900', '645900', '645931']
+# TODO: Deprecate ADFG_REGIONS in favor of REGIONID_FILE contents
+ADFG_REGIONS = ['625831', '635830', '635900', '645900', '645931'] 
+
+# --- Comprehensive Records File ---
+REGIONID_FILE = "Grid_Main.csv"
