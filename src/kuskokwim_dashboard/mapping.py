@@ -9,7 +9,8 @@ def create_base_map() -> folium.Map:
     return folium.Map(
         location=config.INITIAL_MAP_LOCATION,
         zoom_start=config.INITIAL_MAP_ZOOM,
-        tiles="cartodb positron"
+        tiles="cartodb positron",
+        crs="EPSG4326",
     )
 
 def add_ice_concentration_layer(m: folium.Map, gdf: gpd.GeoDataFrame):
@@ -87,15 +88,16 @@ def add_gebco_contours_layer(m: folium.Map):
 
 def add_sst_wms_layer(m: folium.Map):
     """Adds the NOAA Sea Surface Temperature WMS layer."""
-    sat_sst_time = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=6)).strftime('%Y-%m-%dT00:00:00Z')
+    sat_sst_time = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=1)).strftime('%Y-%m-%dT09:00:00Z')
     noaa_layer = folium.WmsTileLayer(
         url=config.NOAA_SST_WMS_URL,
-        name='NOAA Sea Surface Temp',
-        layers='erdMH1sstd8day_R2022SQNotMasked:sst',
+        name='JPL Sea Surface Temp',
+        layers='jplMURSST41:analysed_sst',
         fmt='image/png',
         transparent=True,
         attr='NOAA NMFS SWFSC ERD',
         parameters={'time': sat_sst_time},
+        version='1.3.0',
         overlay=True,
     )
     noaa_layer.add_to(m)
@@ -111,11 +113,11 @@ def add_mooring_marker(m: folium.Map):
 @staticmethod
 def get_sst_legend() -> str:
     """builds url to retrieve legend as png"""
-    sat_sst_time = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=6)).strftime('%Y-%m-%dT00:00:00Z')
+    sat_sst_time = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=1)).strftime('%Y-%m-%dT09:00:00Z')
     legend_url = (
         f"{config.NOAA_SST_PNG_URL}?"
-        f"sst%5B({sat_sst_time})%5D%5B(0.0)%5D%5B(-45.0):(65.0)%5D%5B(-180.0):(179.975)%5D"
-        f"&.draw=surface&.vars=longitude%7Clatitude%7Csst"
+        f"analysed_sst%5B({sat_sst_time})%5D%5B(0.0)%5D%5B(-45.0):(65.0)%5D%5B(-180.0):(179.975)%5D"
+        f"&.draw=surface&.vars=longitude%7Clatitude%7Canalysed_sst"
         f"&.colorBar=%7C%7C%7C%7C%7C&.bgColor=0xffccccff&.legend=Only"
     )
     return legend_url
