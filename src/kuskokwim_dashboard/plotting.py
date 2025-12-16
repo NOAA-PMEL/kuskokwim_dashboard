@@ -143,7 +143,7 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
         fig.update_layout(
             height=300, # figsize=(7,3) ~ 700x300 pixels
             width=700,
-            title_text=f"Region: {reg_id}",
+            title_text=f"ADFG Statistical Region: {reg_id}",
             template="simple_white", # Clean background like matplotlib
             margin=dict(t=40, b=40, l=40, r=40),
             showlegend=False, # Set to True if you want the legend for the bold lines
