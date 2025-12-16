@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>ADFG Region 645931</title>
+
+    <style>
+      /* The .dark-mode class is added to the body by JavaScript */
+      body.dark-mode {
+        background-color: #1a1a1a;
+        color: #d9534f; /* A readable, classic red */
+      }
+      .dark-mode h1, .dark-mode h2 {
+        color: #e60000; /* A brighter red for headings */
+      }
+      /* Override Bootstrap component styles in dark mode */
+      .dark-mode .bg-light,
+      .dark-mode .bg-secondary-subtle {
+        background-color: #2c2c2c !important; /* Use !important to override Bootstrap's utilities */
+      }
+      .dark-mode .border {
+        border-color: #555 !important;
+      }
+      .dark-mode .form-check-label {
+        color: #fff; /* Make the toggle label white for contrast */
+      }
+    </style>
+  </head>
+  <body>
+
+    <div class="container mt-4">
+      
+      <div class="form-check form-switch mb-4">
+        <input class="form-check-input" type="checkbox" role="switch" id="darkModeToggle">
+        <label class="form-check-label" for="darkModeToggle">Night Mode</label>
+      </div>
+
+      <h1 class="mb-4 text-center">About the Project</h1>
+
+      <div class="row">
+        
+        <div class="col-md-12">
+          <div class="p-4 border bg-light rounded-3">
+<h3>CONTEXT:</h3> <p>Temperature drives many critical processes in the Bering Sea. Seasonal sea ice, oceanographic boundaries, fish and plankton distributions, and many other marine conditions are fundamentally controlled by temperature, with major impacts on many people who rely on the Bering Sea for food, culture, or economic activity.</p>
+
+<p>Yet it can be difficult for people to access real-time ocean temperature measurements, or predictions of ocean temperature.</p>
+
+<p>We aim to improve accessibility of ocean temperature information in the Bering Sea region.</p>
+
+<h3>MOTIVATION:</h3>  As a starting point, our team of scientists and fishery coordinators joined together to closely examine ocean temperatures in the inner shelf area of Kuskokwim Bay.  This area supports important local small-scale fisheries, including subsistence harvest of halibut, and also supports a large portion of the commercial yellowfin sole fishery.  The yellowfin sole fishery can include halibut bycatch, which is a problem for the closely-managed commercial fishery and detrimental for local residents.</p>
+
+<p>The most efficient way to reduce bycatch is to intentionally fish for target species when non-target species are not present.  In the case of yellowfin sole, this means fishing when bottom temperatures are still cold enough to act as a barrier for halibut— about 2°C or less.  But how can fishery captains predict what bottom temperatures will be in a region hundreds of miles from their port in Dutch Harbor?  We addressed that challenge as a team, and these ‘dashboard’ webpages are the result.</p>
+
+<h3>METHODS:</h3>  We deployed a range of oceanographic instruments in the Kuskokwim Bay region:
+•Pop-up buoys that collect bottom temperature data for months at a time, then ‘pop up’ to the surface where they transmit the stored data back to NOAA and UW offices in Seattle
+•Moorings that are fixed in place for about four months during the summer period, collecting a range of data (including temperature) from the bottom to the surface
+•Scientific-grade temperature sensors attached to commercial fishing nets, collecting data across the water column as the nets descend and ascend, and near-bottom temperatures as the net moves horizontally while actively fishing
+
+ANALYSES:  [Emily… ] very very brief summary of analyses that drive the data discovery tools in this dashboard.  Note that the spatial references we use are ADF&G Statistical Areas, since those areas are already familiar to fishing captains.
+
+ADDITIONAL DATA SOURCES:  We use publicly-available data on sea ice concentration and (Emily…)...  provide links to ASIP, IOOS, JPL ….
+
+CONTACT & CREDITS:   here we can provide both functional contact information (i.e. “for technical questions about this site or to contribute new temperature observations, email “BeringSeaTemperature@uw.edu” [ or whatever address we come up with– not yet set up…] … and also provide credit to our team members, maybe without email addresses (?)
+
+
+          </div>
+        </div>
+        
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const darkModeToggle = document.getElementById('darkModeToggle');
+      const currentTheme = localStorage.getItem('theme');
+
+      // On page load, check if a theme is saved in localStorage
+      if (currentTheme) {
+        document.body.classList.add(currentTheme);
+        if (currentTheme === 'dark-mode') {
+          darkModeToggle.checked = true;
+        }
+      }
+
+      // Add event listener to the toggle switch
+      darkModeToggle.addEventListener('change', function() {
+        // Toggle the .dark-mode class on the body
+        document.body.classList.toggle('dark-mode');
+
+        // Save the user's preference to localStorage
+        let theme = 'light-mode'; // Default to light
+        if (document.body.classList.contains('dark-mode')) {
+          theme = 'dark-mode';
+        }
+        localStorage.setItem('theme', theme);
+      });
+    </script>
+  </body>
+</html>
