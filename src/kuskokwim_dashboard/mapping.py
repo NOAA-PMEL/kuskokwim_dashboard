@@ -4,13 +4,13 @@ import geopandas as gpd
 import datetime as dt
 from . import config
 
-def create_base_map() -> folium.Map:
+def create_base_map(crs=None, tiles=None) -> folium.Map:
     """Creates and returns a basic Folium map centered on the region of interest."""
     return folium.Map(
         location=config.INITIAL_MAP_LOCATION,
         zoom_start=config.INITIAL_MAP_ZOOM,
-        tiles="cartodb positron",
-        crs="EPSG4326",
+        tiles=tiles,
+        crs=crs,
     )
 
 def add_ice_concentration_layer(m: folium.Map, gdf: gpd.GeoDataFrame):
@@ -43,6 +43,7 @@ def add_ice_prediction_layer(m: folium.Map, gdf: gpd.GeoDataFrame):
             'fillOpacity': 0.0 if "free" in feature['properties']['type'].lower() else 0.5,
         },
         tooltip=folium.GeoJsonTooltip(fields=['type'], aliases=['Prediction:'], sticky=True),
+        show=False
     ).add_to(m)
     
 def add_adfg_grid_layer(m: folium.Map):
@@ -61,14 +62,20 @@ def add_adfg_grid_layer(m: folium.Map):
         maxwidth='200px'
     )
 
-    folium.GeoJson(open(config.ADFG_GRID_FILE).read(),
+    with open(config.ADFG_GRID_FILE) as f:
+        geojson_data = f.read()
+        
+    folium.GeoJson(geojson_data,
         style_function=lambda feature: {
             "fillColor": "green"
             if "pri" in feature["properties"]["test"].lower()
-            else "#ffff00",
+            else None,
             "color": "black",
             "weight": 2,
             "dashArray": "5, 5",
+            "fillOpacity": .5
+            if "pri" in feature["properties"]["test"].lower()
+            else 0,
         },
         popup=popup,
         tooltip=tooltip,

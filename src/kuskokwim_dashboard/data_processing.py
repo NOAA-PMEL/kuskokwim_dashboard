@@ -10,7 +10,7 @@ from typing import Tuple
 from . import config
 
 # Set up basic logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(filename=f'{config.LOG_FILE_NAME}',level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def fetch_ice_data() -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
     """

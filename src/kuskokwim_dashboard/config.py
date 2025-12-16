@@ -1,5 +1,6 @@
 # arctic_ice_forecaster/config.py
 from pathlib import Path
+import datetime as dt
 
 # --- Project Directories ---
 # Use pathlib for robust, cross-platform path handling
@@ -8,6 +9,7 @@ PROJ_DIR = BASE_DIR / "kuskokwim_dashboard"
 DATA_DIR = PROJ_DIR / "data"
 OUTPUT_DIR = PROJ_DIR / "output"
 IMAGE_DIR = PROJ_DIR / "images"
+LOG_DIR = PROJ_DIR / "logs"
 
 # --- Data Sources ---
 NOAA_ICE_CHART_URL = "https://mapservices.weather.noaa.gov/vector/rest/services/obs/asip_ice_chart/MapServer"
@@ -26,3 +28,6 @@ ADFG_REGIONS = ['625831', '635830', '635900', '645900', '645931']
 
 # --- Comprehensive Records File ---
 REGIONID_FILE = "Grid_Main.csv"
+
+# --- Logging ---
+LOG_FILE_NAME = f"{LOG_DIR}/{dt.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"

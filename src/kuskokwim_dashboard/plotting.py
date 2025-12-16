@@ -159,7 +159,5 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
         fig.update_xaxes(showline=False, row=2, col=1) # ax[1] bottom hidden
         fig.update_xaxes(showline=True,  row=3, col=1) # ax[2] bottom visible
 
-        fig.show()
-
         # Export commands
         fig.write_html(f"{config.OUTPUT_DIR}/{reg_id}.plotly.html")
