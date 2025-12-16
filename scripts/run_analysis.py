@@ -2,6 +2,7 @@
 import logging
 import folium
 import urllib.request
+import datetime as dt
 # 👇 Imports now use the new package name
 from kuskokwim_dashboard import config, data_processing, mapping, plotting
 
@@ -18,9 +19,20 @@ def main():
     gdf_conc_360 = data_processing.reproject_to_360(gdf_conc)
     gdf_pred_360 = data_processing.reproject_to_360(gdf_pred)
 
+    # --- Output Dates ---
+    latest_conc_date = gdf_conc['idp_filedate'].max().strftime('%Y-%m-%d')
+    latest_pred_date = gdf_pred['idp_filedate'].max().strftime('%Y-%m-%d')
+    logging.info(f"Latest Ice Concentration Date: {latest_conc_date}")
+    logging.info(f"Latest Ice Prediction Date: {latest_pred_date}")
+    with open(f"{config.OUTPUT_DIR}/lastrun.txt", "w") as f:
+        print(f"Latest Ice Concentration Date: {latest_conc_date}", file=f)
+        print(f"Latest Ice Prediction Date: {latest_pred_date}", file=f)
+        print(f"Dashboard Updated: {dt.datetime.now().strftime('%Y-%m-%d %H:%M')}", file=f)
+
+
     # --- Generate Maps ---
     logging.info("Generating 'footprint.html' map...")
-    m1 = mapping.create_base_map()
+    m1 = mapping.create_base_map(crs="EPSG3857", tiles="cartodb positron")
     mapping.add_ice_concentration_layer(m1, gdf_conc_360.drop(columns=['idp_filedate','idp_ingestdate']))
     mapping.add_ice_prediction_layer(m1, gdf_pred_360.drop(columns=['idp_filedate','idp_ingestdate']))
     mapping.add_adfg_grid_layer(m1)
@@ -30,7 +42,7 @@ def main():
     m1.save(config.OUTPUT_DIR / "footprint.html")
 
     logging.info("Generating 'noaa_folium_map.html' map...")
-    m2 = mapping.create_base_map()
+    m2 = mapping.create_base_map(crs="EPSG4326")
     mapping.add_ice_concentration_layer(m2, gdf_conc_360.drop(columns=['idp_filedate','idp_ingestdate']))
     mapping.add_ice_prediction_layer(m2, gdf_pred_360.drop(columns=['idp_filedate','idp_ingestdate']))
     mapping.add_adfg_grid_layer(m2)
