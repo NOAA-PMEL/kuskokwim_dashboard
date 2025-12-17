@@ -44,7 +44,7 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
     for reg_id in config.ADFG_REGIONS:
         # Create subplots: 3 rows, 1 column, shared x-axis
         fig = make_subplots(
-            rows=3, cols=1,
+            rows=4, cols=1,
             shared_xaxes=True,
             vertical_spacing=0.03,  # Adjust closer to 0 to mimic tight layout
         )
@@ -139,6 +139,36 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
             row=3, col=1
         )
 
+        # --- Subplot 4: Statistics ---
+        # Calculate Median ICE (Optimized pandas version of your loop)
+
+        # Fill Between (Blue Area)
+        for year, groups in reg_df[reg_id].groupby('Year'):
+            fig.add_trace(
+                go.Scatter(
+                    x=groups.Yearday, 
+                    y=groups.BOT *0,
+                    mode='lines',
+                    line=dict(color='black', width=1),
+                    opacity=0.25,
+                    showlegend=False,
+                    hoverinfo='skip'
+                ),
+                row=2, col=1
+            )
+            
+        # Plot Prediction
+        fig.add_trace(
+            go.Scatter(
+                x=reg_pred_df[reg_id].Yearday, 
+                y=reg_pred_df[reg_id].BOT *0,
+                mode='lines',
+                line=dict(color='black', width=1.5),
+                name='Probability'
+            ),
+            row=4, col=1
+        )
+
         # --- Layout & Spines ---
         fig.update_layout(
             height=300, # figsize=(7,3) ~ 700x300 pixels
@@ -157,7 +187,8 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
         # In Plotly 'simple_white', axes have lines. We turn them off.
         fig.update_xaxes(showline=False, row=1, col=1) # ax[0] bottom hidden
         fig.update_xaxes(showline=False, row=2, col=1) # ax[1] bottom hidden
-        fig.update_xaxes(showline=True,  row=3, col=1) # ax[2] bottom visible
+        fig.update_xaxes(showline=False,  row=3, col=1) # ax[2] bottom visible
+        fig.update_xaxes(showline=True,  row=4, col=1) # ax[3] bottom visible
 
         # Export commands
         fig.write_html(f"{config.OUTPUT_DIR}/{reg_id}.plotly.html")
