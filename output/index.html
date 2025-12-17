@@ -67,9 +67,10 @@
             <li>Clicking an ADF&G Statistical Area (grid boxes near Kuskokwim Bay) will pop up a chart showing temperature predictions.</li>
             <li>Clicking the pop-up will open a new full-page view of temperature predictions for that Statistical Area.</li>
             </ul>
-            <p>ASIP Data last updated: <!-- Add date here --></p>
-            <p>Dashboard last updated: <!-- Add date here --></p>
+          </div>
 
+          <div class="p-4 border bg-light rounded-3">
+            <pre id="output" style="border: 1px solid #ccc; padding: 10px; background: #f9f9f9;"></pre>
           </div>
         </div>
 
@@ -216,5 +217,32 @@
 
         });
     </script>
+
+    <script>
+            // Wait for the HTML to finish loading
+            document.addEventListener('DOMContentLoaded', () => {
+                
+                // 1. Enter the path to your text file here
+                const filePath = 'lastrun.txt';
+
+                // 2. Fetch the file
+                fetch(filePath)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.text();
+                    })
+                    .then(text => {
+                        // 3. Display the text in the 'output' div
+                        document.getElementById('output').textContent = text;
+                    })
+                    .catch(error => {
+                        console.error('There was a problem:', error);
+                        document.getElementById('output').textContent = "Error: Could not load file. (Make sure you are running a local server)";
+                    });
+            });
+        </script>
+
   </body>
 </html>
