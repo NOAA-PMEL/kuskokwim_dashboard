@@ -46,16 +46,21 @@ def add_ice_prediction_layer(m: folium.Map, gdf: gpd.GeoDataFrame):
         show=False
     ).add_to(m)
     
-def add_adfg_grid_layer(m: folium.Map):
+def add_adfg_grid_layer(m: folium.Map, popup_on: bool = True):
     """Adds the ADFG forecast grid regions to the map."""
-    popup = folium.GeoJsonPopup(
-        # fields=["ADFG","link","image"],
-        fields=["temp_grid","link"],    
-        labels=False,    
+    if popup_on:
+        popup = folium.GeoJsonPopup(
+            # fields=["ADFG","link","image"],
+            fields=["temp_table","link"],    
+            labels=False,    
 
-        style="min-inline-size: 250px;",
-        maxwidth='800px'
-    )
+            style="min-inline-size: 250px;",
+            maxwidth='800px'
+        )
+        popup_keep_highlighted=True
+    else:
+        popup_keep_highlighted=False
+        popup = None
 
     tooltip = folium.GeoJsonTooltip(
         fields=["ADFG"],
@@ -79,7 +84,7 @@ def add_adfg_grid_layer(m: folium.Map):
         },
         popup=popup,
         tooltip=tooltip,
-        popup_keep_highlighted=True,
+        popup_keep_highlighted=popup_keep_highlighted,
         control=True,
         name='ADFG Regions (Forecast)',
     ).add_to(m)
