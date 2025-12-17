@@ -35,9 +35,9 @@ def main():
     m1 = mapping.create_base_map(crs="EPSG3857", tiles="cartodb positron")
     mapping.add_ice_concentration_layer(m1, gdf_conc_360.drop(columns=['idp_filedate','idp_ingestdate']))
     mapping.add_ice_prediction_layer(m1, gdf_pred_360.drop(columns=['idp_filedate','idp_ingestdate']))
-    mapping.add_adfg_grid_layer(m1)
     mapping.add_gebco_contours_layer(m1)
     mapping.add_mooring_marker(m1)
+    mapping.add_adfg_grid_layer(m1)
     folium.LayerControl().add_to(m1)
     m1.save(config.OUTPUT_DIR / "footprint.html")
 
