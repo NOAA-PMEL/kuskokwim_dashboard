@@ -50,7 +50,7 @@ def add_adfg_grid_layer(m: folium.Map):
     """Adds the ADFG forecast grid regions to the map."""
     popup = folium.GeoJsonPopup(
         # fields=["ADFG","link","image"],
-        fields=["image_title","image"],    
+        fields=["temp_grid","link"],    
         labels=False,    
 
         style="min-inline-size: 250px;",

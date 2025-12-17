@@ -51,16 +51,31 @@ def main():
     m2.save(config.OUTPUT_DIR / "noaa_folium_map.html")
     logging.info("Getting SST legend image from url.")
     legend_url = mapping.get_sst_legend()
-    urllib.request.urlretrieve(legend_url,'images/erdMH1sstd8day_R2022SQNotMasked.png')
+    urllib.request.urlretrieve(legend_url,'images/erddap_legend_sst.png')
 
     logging.info("Generating region images...")
 
-    logging.info("Workflow complete.")
+    logging.info("Loading region temperatures...")
     df = data_processing.load_temperature_data('data/kuskokwim_historic_data.csv')
     pdf = data_processing.load_temperature_data('data/kuskokwim_projected_data.csv')
 
+    logging.info("Generating region timeseries...")
     plotting.timeseries_plots(df, pdf)
     plotting.timeseries_plotly_plots(df, pdf)
-    
+
+# # TODO: implement loop over new data format for ice, sst and bottom temp
+#     logging.info("Loading region temperatures...")
+#     station_info = pd.read_csv(config.REGIONID_FILE)
+
+#     for _i, station in station_info.iterrows():
+#         df = data_processing.load_temperature_data('data/{station}_SST.csv')
+#         pdf = data_processing.load_temperature_data('data/kuskokwim_projected_data.csv')
+
+#         logging.info("Generating region timeseries...")
+#         plotting.timeseries_plots(df, pdf)
+#         plotting.timeseries_plotly_plots(df, pdf)
+
+    logging.info("Workflow complete.")
+
 if __name__ == "__main__":
     main()
