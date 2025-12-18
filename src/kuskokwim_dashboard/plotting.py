@@ -245,7 +245,7 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
         fig.update_yaxes(title_text="ACCURACY<br>EST.", row=4, col=1, secondary_y=False)
 
         fig.update_layout(
-            height=600, 
+            height=400, 
             width=800,
             title_text=f"Region: {reg_id}",
             template="simple_white", 
