@@ -184,7 +184,7 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
                 y=reg_pred_df[reg_id].ICE *0,
                 mode='lines',
                 line=dict(color='black', width=1.5),
-                name='Accuracy Est.'
+                name='Error Est.'
             ),
             row=4, col=1, secondary_y=False
         )
@@ -242,7 +242,7 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
         fig.update_yaxes(title_text="Ice", row=3, col=1, secondary_y=False)
 
         # Row 4
-        fig.update_yaxes(title_text="ACCURACY<br>EST.", row=4, col=1, secondary_y=False)
+        fig.update_yaxes(title_text="Error<br>(°C)", row=4, col=1, secondary_y=False)
 
         fig.update_layout(
             height=400, 
