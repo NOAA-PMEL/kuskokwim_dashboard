@@ -127,7 +127,7 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
                 y=reg_pred_df[reg_id].BOT,
                 mode='lines',
                 line=dict(color='red', width=1.5),
-                name='BOT Pred'
+                name='Bottom Pred'
             ),
             row=2, col=1, secondary_y=False
         )
@@ -156,7 +156,7 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
                 y=reg_pred_df[reg_id].ICE,
                 mode='lines',
                 line=dict(color='blue', width=1.5),
-                name='ICE Pred'
+                name='Ice Pred'
             ),
             row=3, col=1, secondary_y=False
         )
@@ -235,11 +235,11 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
         fig.update_yaxes(title_text="SST<br>(°F)", range=sst_f_range, row=1, col=1, secondary_y=True, showgrid=False)
         
         # Row 2
-        fig.update_yaxes(title_text="BOT<br>(°C)", range=bot_c_range, row=2, col=1, secondary_y=False)
-        fig.update_yaxes(title_text="BOT<br>(°F)", range=bot_f_range, row=2, col=1, secondary_y=True, showgrid=False)
-        
+        fig.update_yaxes(title_text="Bottom<br>(°C)", range=bot_c_range, row=2, col=1, secondary_y=False)
+        fig.update_yaxes(title_text="Bottom<br>(°F)", range=bot_f_range, row=2, col=1, secondary_y=True, showgrid=False)
+
         # Row 3
-        fig.update_yaxes(title_text="ICE", row=3, col=1, secondary_y=False)
+        fig.update_yaxes(title_text="Ice", row=3, col=1, secondary_y=False)
 
         # Row 4
         fig.update_yaxes(title_text="ACCURACY<br>EST.", row=4, col=1, secondary_y=False)
