@@ -94,7 +94,7 @@ def add_gebco_contours_layer(m: folium.Map):
     folium.TileLayer(
         tiles=config.GEBCO_CONTOUR_TILES_URL,
         attr='GEBCO; NOAA NCEI',
-        name='GEBCO Contours',
+        name='Bathymetry Contours (m)',
         overlay=True,
     ).add_to(m)
 
