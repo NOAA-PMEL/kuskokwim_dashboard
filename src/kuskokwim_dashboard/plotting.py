@@ -53,7 +53,8 @@ def get_padded_range(series_list, padding=0.05):
         return [0, 1]
         
     span = y_max - y_min
-    if span == 0: span = 1
+    if span == 0: 
+        span = 1
     
     return [y_min - (span * padding), y_max + (span * padding)]
 

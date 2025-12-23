@@ -1,11 +1,9 @@
 # scripts/run_analysis.py
 import logging
-import folium
-import urllib.request
 import datetime as dt
 import pandas as pd
 # 👇 Imports now use the new package name
-from kuskokwim_dashboard import config, data_processing, mapping, plotting
+from kuskokwim_dashboard import config, data_processing
 
 def main():
     """
@@ -28,7 +26,7 @@ def main():
         print(f"Latest Ice Prediction Date: {latest_pred_date}", file=f)
         print(f"Dashboard Updated: {dt.datetime.now().strftime('%Y-%m-%d %H:%M')}", file=f)
 
-    logging.info(f"Obtaining SST Values and Statistics...")
+    logging.info("Obtaining SST Values and Statistics...")
     # iday = 0
     for iday in range(0,5,1):
         for _i, rows in pd.read_csv(config.REGIONID_FILE).iterrows():
@@ -43,7 +41,7 @@ def main():
                 print(mean_woice['time'].str.split('T')[0][0].replace('-',''),
                     mean_woice['analysed_sst (degree_C)'].values[0], file = f, sep = ',')
 
-    logging.info(f"Calculating Ice Flag Predictions...")
+    logging.info("Calculating Ice Flag Predictions...")
     for _i, rows in pd.read_csv(config.REGIONID_FILE).iterrows():
         _idf, mean_wice, mean_woice, sst_date = data_processing.jplsst_getter(rows['regID'],config.NOAA_SST_URL,sat_sst_time)
         df = pd.DataFrame()

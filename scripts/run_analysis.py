@@ -3,7 +3,6 @@ import logging
 import folium
 import urllib.request
 import datetime as dt
-import pandas as pd
 # 👇 Imports now use the new package name
 from kuskokwim_dashboard import config, data_processing, mapping, plotting
 
