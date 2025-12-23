@@ -3,12 +3,13 @@ import logging
 import folium
 import urllib.request
 import datetime as dt
+import pandas as pd
 # 👇 Imports now use the new package name
 from kuskokwim_dashboard import config, data_processing, mapping, plotting
 
 def main():
     """
-    Main script to run the full data fetching, processing, and visualization workflow.
+    Main script to run the full data fetching, processing, and visualization workflow for the website, does not get ice/sst data.
     """
     # --- Setup ---
     config.OUTPUT_DIR.mkdir(exist_ok=True)
@@ -58,22 +59,11 @@ def main():
     logging.info("Loading region temperatures...")
     df = data_processing.load_temperature_data('data/kuskokwim_historic_data.csv')
     pdf = data_processing.load_temperature_data('data/kuskokwim_projected_data.csv')
+    # TODO: update this to take in SST,ICE,BOTTOM independently for each region and also projections
 
     logging.info("Generating region timeseries...")
     plotting.timeseries_plots(df, pdf)
     plotting.timeseries_plotly_plots(df, pdf)
-
-# # TODO: implement loop over new data format for ice, sst and bottom temp
-#     logging.info("Loading region temperatures...")
-#     station_info = pd.read_csv(config.REGIONID_FILE)
-
-#     for _i, station in station_info.iterrows():
-#         df = data_processing.load_temperature_data('data/{station}_SST.csv')
-#         pdf = data_processing.load_temperature_data('data/kuskokwim_projected_data.csv')
-
-#         logging.info("Generating region timeseries...")
-#         plotting.timeseries_plots(df, pdf)
-#         plotting.timeseries_plotly_plots(df, pdf)
 
     logging.info("Workflow complete.")
 

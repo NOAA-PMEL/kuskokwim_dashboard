@@ -2,6 +2,7 @@
 import logging
 import geopandas as gpd
 import pandas as pd
+from shapely.geometry import Point
 from arcgis.gis import GIS
 from arcgis.mapping import MapImageLayer
 from shapely.ops import transform
@@ -58,7 +59,7 @@ def reproject_to_360(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     if gdf.empty:
         logging.warning("Input GeoDataFrame is empty. Skipping reprojection.")
         return gdf
-    
+
     logging.info("Reprojecting GeoDataFrame to prevent dateline wrapping...")
     gdf_transformed = gdf.copy()
     gdf_transformed['SHAPE'] = gdf_transformed['SHAPE'].apply(
@@ -83,3 +84,52 @@ def load_temperature_data(file_path: str) -> pd.DataFrame:
     except Exception as e:
         logging.error(f"Failed to load temperature data: {e}")
         return pd.DataFrame()
+
+def jplsst_getter(adfg_id: str, erddap_url: str, sat_sst_time: str) -> Tuple[pd.DataFrame, pd.DataFrame, str]:
+    """
+
+
+    Note:
+    Byte flag_masks 1, 2, 4, 8, 16;
+    String flag_meanings "open_sea land open_lake open_sea_with_ice_in_the_grid open_lake_with_ice_in_the_grid";
+
+    So we want to exclude land and look at with and without ice, that means 1 (open water, no ice) and 9 (open water, with ice)
+    """
+    sites = pd.read_csv(config.REGIONID_FILE)
+    coords = sites[sites['regID']==adfg_id]
+
+    try:
+        url =f"""{erddap_url}analysed_sst%5B({sat_sst_time}):1:({sat_sst_time})%5D%5B({coords['S'].values[0]}):1:({coords['N'].values[0]})%5D%5B({coords['W'].values[0]}):1:({coords['E'].values[0]})%5D,
+analysis_error%5B({sat_sst_time}):1:({sat_sst_time})%5D%5B({coords['S'].values[0]}):1:({coords['N'].values[0]})%5D%5B({coords['W'].values[0]}):1:({coords['E'].values[0]})%5D,
+mask%5B({sat_sst_time}):1:({sat_sst_time})%5D%5B({coords['S'].values[0]}):1:({coords['N'].values[0]})%5D%5B({coords['W'].values[0]}):1:({coords['E'].values[0]})%5D,
+sea_ice_fraction%5B({sat_sst_time}):1:({sat_sst_time})%5D%5B({coords['S'].values[0]}):1:({coords['N'].values[0]})%5D%5B({coords['W'].values[0]}):1:({coords['E'].values[0]})%5D"""
+        
+        url = "".join(url.split('\n'))
+        df = pd.read_csv(url)
+        mean_wice = df[df['mask']==9].mean(numeric_only=True).to_frame().T
+        mean_wice['time'] = sat_sst_time
+        mean_woice = df[df['mask']==1].mean(numeric_only=True).to_frame().T
+        mean_woice['time'] = sat_sst_time
+        #ToDo: Mask Out Land above too for coastal boxes
+
+        return df, mean_wice, mean_woice, sat_sst_time
+    except Exception as e:
+        logging.error(f"Failed to load temperature data: {e}:")
+        return pd.DataFrame()
+
+def ASIP_Prediction(df: pd.DataFrame, ice_pred: gpd.geodataframe) -> pd.DataFrame():
+    """pass in dataframe with coords of center of box, 
+    and determine if its within the ASIP prediction shape file."""
+    df['coords'] = df['coords'].apply(Point)
+    points = gpd.GeoDataFrame(df, geometry='coords', crs="EPSG:4326").to_crs(ice_pred.crs)
+
+    forpointInPolys = gpd.tools.sjoin(points, 
+                                      ice_pred.rename({'SHAPE':'geometry'}), 
+                                      predicate="within", 
+                                      how='left')
+    if forpointInPolys['st_area(shape)'].isna().all():
+        print('No ice')
+        return 0
+    else:
+        print('Ice at location in prediction')
+        return 1
