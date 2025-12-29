@@ -33,7 +33,12 @@ def main():
             sat_sst_time = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=1+iday)).strftime('%Y-%m-%dT00:00:00Z')
             if iday ==0:
                 filedate = sat_sst_time.split('T')[0].replace('-','')
-            _idf, mean_wice, mean_woice, sst_date = data_processing.jplsst_getter(rows['regID'],config.NOAA_SST_URL,sat_sst_time)
+            try:
+                _idf, mean_wice, mean_woice, sst_date = data_processing.jplsst_getter(rows['regID'],config.NOAA_SST_URL,sat_sst_time)
+            except Exception as e:
+                logging.error(f"Error obtaining SST data for {rows['regID']} on {sat_sst_time}: {e}")
+                continue
+
             print(rows['regID'], mean_wice['time'].str.split('T')[0][0].replace('-',''),mean_wice['analysed_sst (degree_C)'].values[0])
             with open(f'{config.DATA_DIR}/{rows['regID']}_SST_{filedate}.csv', "a") as f:
                 if iday == 0:
