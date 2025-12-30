@@ -52,6 +52,8 @@ def main():
     logging.info("Getting SST legend image from url.")
     legend_url = mapping.get_sst_legend()
     urllib.request.urlretrieve(legend_url,'images/erddap_legend_sst.png')
+    logging.info(f"URL for erddap legend: {legend_url}")
+
 
     logging.info("Generating region images...")
 
