@@ -133,3 +133,7 @@ def ASIP_Prediction(df: pd.DataFrame, ice_pred: gpd.geodataframe) -> pd.DataFram
     else:
         print('Ice at location in prediction')
         return 1
+
+def geojson_gridbuilder(df: pd.DataFrame) -> str:
+    
+    return df.to_json(orient='records')
