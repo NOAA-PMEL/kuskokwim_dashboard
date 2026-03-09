@@ -135,14 +135,58 @@ def ASIP_Prediction(df: pd.DataFrame, ice_pred: gpd.geodataframe) -> pd.DataFram
         return 1
 
 def geojson_gridbuilder(df: pd.DataFrame) -> str:
+    """
+    Converts a DataFrame of grid regions into a GeoJSON FeatureCollection.
+    
+    Args:
+        df: DataFrame with columns: regID, active, W, E, N, S
+        
+    Returns:
+        A formatted GeoJSON string representing grid regions as polygons.
+    """
     json_header = """{
     "type": "FeatureCollection",
     "name": "grid_ADFG",
     "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
     "features": [
     """
-    json_body = ""
+    features = []
     
-    json_tail = """]
-    }"""
+    for _, row in df.iterrows():
+        adfg_id = row.regID.split('_')[1]
+        coords = [[row.W, row.S], [row.E, row.S], [row.E, row.N], [row.W, row.N], [row.W, row.S]]
+        
+        if row['active'] == 'y':
+            properties = {
+                "ADFG": adfg_id,
+                "test": "pri_reg",
+                "image_title": "<strong>click image below for indepth analysis</strong>",
+                "image": f'<br><a href="{adfg_id}.html" target="_blank"><img src="{adfg_id}.image.png" width="250px"/>',
+                "temp_table": "<table><tr><th>SST</th><th>BotTemp</th><th>SeaIce</th></tr><tr><td>-1.8C/29F</td><td>-1.8C/29F</td><td>1 (ice)</td></tr></table>",
+                "link": f'<a href="{adfg_id}.html" target="_blank">more info</a>'
+            }
+        else:
+            properties = {
+                "ADFG": adfg_id,
+                "test": "grid",
+                "image_title": "<strong>click image below for indepth analysis</strong>",
+                "image": "<br><strong>Coming Soon</strong>",
+                "temp_table": "",
+                "link": "coming_soon"
+            }
+        
+        feature = {
+            "type": "Feature",
+            "properties": properties,
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [coords]
+            }
+        }
+        features.append(feature)
+    
+    import json
+    json_body = ",\n".join(json.dumps(f) for f in features)
+    json_tail = "\n]\n}"
+    
     return json_header + json_body + json_tail

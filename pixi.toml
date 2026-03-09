@@ -10,6 +10,7 @@ platforms = ["linux-64", "win-64", "osx-64", "osx-arm64"]
 # Defines runnable scripts. Run with `pixi run start`
 start = "python scripts/run_analysis.py"
 get_data = "python scripts/run_get_data.py"
+get_build_ADFG_grid = "python scripts/run_build_ADFGgrid.py"
 test = "pytest"
 lint = "ruff check ."
 
