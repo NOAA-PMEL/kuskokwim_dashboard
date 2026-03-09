@@ -135,5 +135,14 @@ def ASIP_Prediction(df: pd.DataFrame, ice_pred: gpd.geodataframe) -> pd.DataFram
         return 1
 
 def geojson_gridbuilder(df: pd.DataFrame) -> str:
+    json_header = """{
+    "type": "FeatureCollection",
+    "name": "grid_ADFG",
+    "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+    "features": [
+    """
+    json_body = ""
     
-    return df.to_json(orient='records')
+    json_tail = """]
+    }"""
+    return json_header + json_body + json_tail
