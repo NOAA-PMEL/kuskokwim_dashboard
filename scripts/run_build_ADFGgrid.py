@@ -1,6 +1,5 @@
 # scripts/run_build_ADFGgrid.py
 import logging
-import datetime as dt
 import pandas as pd
 # 👇 Imports now use the new package name
 from kuskokwim_dashboard import config, data_processing
@@ -19,6 +18,7 @@ def main():
     # --- File Output ---
     with open(config.ADFG_GRID_FILE, 'w') as f:
         f.write(grid_geojson)
+    logging.info(f"ADFG grid GeoJSON saved to {config.ADFG_GRID_FILE}")
 
 if __name__ == "__main__":
     main()
