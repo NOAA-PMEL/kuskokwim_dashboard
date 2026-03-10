@@ -60,11 +60,11 @@ def main():
     logging.info("Loading region temperatures...")
     df = data_processing.load_temperature_data('data/kuskokwim_historic_data.csv')
     pdf = data_processing.load_temperature_data('data/kuskokwim_projected_data.csv')
-    # TODO: update this to take in SST,ICE,BOTTOM independently for each region and also projections
 
     logging.info("Generating region timeseries...")
     plotting.timeseries_plots(df, pdf)
-    plotting.timeseries_plotly_plots(df, pdf)
+    plotting.timeseries_plotly_plots(df, pdf,size='small')
+    plotting.timeseries_plotly_plots(df, pdf,size='large')
 
     logging.info("Workflow complete.")
 

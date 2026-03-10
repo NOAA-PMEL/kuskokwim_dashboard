@@ -31,5 +31,8 @@ ADFG_REGIONS = ['625831', '635830', '635900', '645900', '645931']
 # --- Comprehensive Records File ---
 REGIONID_FILE = CONFIG_DIR / "Grid_Main.csv"
 
+# --- Generated Files ---
+PROJECTED_DATA_FILE = DATA_DIR / "kuskokwim_projected_data.csv"
+
 # --- Logging ---
 LOG_FILE_NAME = f"{LOG_DIR}/{dt.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"

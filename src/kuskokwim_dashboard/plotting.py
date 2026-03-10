@@ -1,4 +1,5 @@
 # arctic_ice_forecaster/plotting.py
+import datetime
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
@@ -25,7 +26,7 @@ def timeseries_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
             ice_climo = pd.concat([ice_climo,pd.DataFrame([[doy,groups.ICE.median()]])])
         
         ax[2].fill_between(ice_climo[0],ice_climo[1],color='b',alpha=.25)
-        ax[2].plot(reg_pred_df[reg_id].Yearday,reg_pred_df[reg_id].ICE,'b')
+        # ax[2].plot(reg_pred_df[reg_id].Yearday,reg_pred_df[reg_id].ICE,'b')
         
         ax[0].spines[['bottom']].set_visible(False)
         ax[1].spines[['bottom','top']].set_visible(False)
@@ -58,12 +59,26 @@ def get_padded_range(series_list, padding=0.05):
     
     return [y_min - (span * padding), y_max + (span * padding)]
 
-def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
-    """Generates plotly timeseries plots for each ADFG region."""
-    reg_df = {reg_id:df[df.RegionID.astype(str)==reg_id] for reg_id in config.ADFG_REGIONS}
-    reg_pred_df = {reg_id:pdf[pdf.RegionID.astype(str)==reg_id] for reg_id in config.ADFG_REGIONS}
+def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size='large') -> None:
+    """Generates plotly timeseries plots for each ADFG region.
+
+    If size='small', generates compact plots.
+    If size='large', generates detailed plots with secondary axes and legends.
+    
+    """
+
+    if size == 'small':
+        width, height = 400, 400
+        pname = 'plotly.html'
+    else:
+        width, height = 325, 600
+        pname = 'plotly.large.html'
+
+    today = datetime.datetime.now()
 
     for reg_id in config.ADFG_REGIONS:
+        climo_df = reg_df.groupby('RegionID').get_group(int(reg_id))
+        actual_df = act_df.groupby('RegionID').get_group(int(reg_id))
         # 1. Setup Subplots with Dual Axis Specs
         fig = make_subplots(
             rows=4, cols=1,
@@ -79,7 +94,7 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
 
         # --- ROW 1: SST (Black) ---
         # 1A. Historical (Celsius)
-        for year, groups in reg_df[reg_id].groupby('Year'):
+        for year, groups in climo_df.groupby('Year'):
             fig.add_trace(
                 go.Scatter(
                     x=to_date(groups.Yearday), 
@@ -92,22 +107,48 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
                 ),
                 row=1, col=1, secondary_y=False
             )
-        
+        for year, groups in climo_df.groupby('Year'):
+            if year == 2024:
+                fig.add_trace(
+                    go.Scatter(
+                        x=to_date(groups.Yearday),
+                        y=groups.SST,
+                        mode='lines',
+                        line=dict(color='black', width=1.5),
+                        showlegend=False,
+                        hoverinfo='skip'
+                    ),
+                    row=1, col=1, secondary_y=False
+                )
+                
         # 1B. Prediction (Celsius)
         fig.add_trace(
             go.Scatter(
-                x=to_date(reg_pred_df[reg_id].Yearday),
-                y=reg_pred_df[reg_id].SST,
+                x=to_date(actual_df['Yearday']),
+                y=actual_df['SST'],
                 mode='lines',
-                line=dict(color='black', width=1.5),
+                line=dict(color='black', width=1.5, dash='dash'),
                 name='SST Pred'
             ),
             row=1, col=1, secondary_y=False
         )
 
+        # 1C. Actual (Celsius)
+        # fig.add_trace(
+        #     go.Scatter(
+        #         x=to_date(actual_df['Yearday']),
+        #         y=actual_df['SST'],
+        #         mode='lines',
+        #         line=dict(color='green', width=1.5),
+        #         name='SST Act',
+        #         showlegend=False,
+        #     ),
+        #     row=1, col=1, secondary_y=False
+        # )    
+        
         # --- ROW 2: BOT (Red) ---
         # 2A. Historical (Celsius)
-        for year, groups in reg_df[reg_id].groupby('Year'):
+        for year, groups in climo_df.groupby('Year'):
             fig.add_trace(
                 go.Scatter(
                     x=to_date(groups.Yearday),
@@ -120,21 +161,34 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
                 ),
                 row=2, col=1, secondary_y=False
             )
-            
+        for year, groups in climo_df.groupby('Year'):
+            if year == 2024:
+                fig.add_trace(
+                    go.Scatter(
+                        x=to_date(groups.Yearday),
+                        y=groups.BOT,
+                        mode='lines',
+                        line=dict(color='red', width=1.5),
+                        showlegend=False,
+                        hoverinfo='skip'
+                    ),
+                    row=2, col=1, secondary_y=False
+                )
+        
         # 2B. Prediction (Celsius)
         fig.add_trace(
             go.Scatter(
-                x=to_date(reg_pred_df[reg_id].Yearday),
-                y=reg_pred_df[reg_id].BOT,
+                x=to_date(actual_df['Yearday']),
+                y=actual_df['BOT'],
                 mode='lines',
-                line=dict(color='red', width=1.5),
-                name='Bottom Pred'
+                line=dict(color='red', width=1.5, dash='dash'),
+                name='BOT Pred'
             ),
             row=2, col=1, secondary_y=False
         )
 
         # --- ROW 3: ICE (Blue) - Single Axis ---
-        ice_climo = reg_df[reg_id].groupby('Yearday')['ICE'].median().reset_index()
+        ice_climo = climo_df.groupby('Yearday')['ICE'].median().reset_index()
         ice_climo.columns = [0, 1] 
 
         fig.add_trace(
@@ -151,20 +205,24 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
             row=3, col=1, secondary_y=False
         )
 
-        fig.add_trace(
-            go.Scatter(
-                x=to_date(reg_pred_df[reg_id].Yearday),
-                y=reg_pred_df[reg_id].ICE,
-                mode='lines',
-                line=dict(color='blue', width=1.5),
-                name='Ice Pred'
-            ),
-            row=3, col=1, secondary_y=False
-        )
 
+        for year, groups in climo_df.groupby('Year'):
+            if year == 2024:
+                fig.add_trace(
+                    go.Scatter(
+                        x=to_date(groups.Yearday),
+                        y=groups.ICE,
+                        mode='lines',
+                        line=dict(color='blue', width=1.5),
+                        showlegend=False,
+                        hoverinfo='skip'
+                    ),
+                    row=3, col=1, secondary_y=False
+                )
+                
         # --- ROW 4: Prediction analysis - Single Axis ---
-        ice_climo = reg_df[reg_id].groupby('Yearday')['ICE'].median().reset_index()
-        ice_climo.columns = [0, 1] 
+        # ice_climo = reg_df[reg_id].groupby('Yearday')['ICE'].median().reset_index()
+        # ice_climo.columns = [0, 1] 
 
         fig.add_trace(
             go.Scatter(
@@ -181,11 +239,11 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
 
         fig.add_trace(
             go.Scatter(
-                x=to_date(reg_pred_df[reg_id].Yearday),
-                y=reg_pred_df[reg_id].ICE *0,
+                x=to_date(actual_df['Yearday']),
+                y=(actual_df['SST']*0),
                 mode='lines',
                 line=dict(color='black', width=1.5),
-                name='Error Est.'
+                name='Accuracy Est.'
             ),
             row=4, col=1, secondary_y=False
         )
@@ -195,7 +253,7 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
         # with the calculated Fahrenheit range.
         
         # SST Ranges
-        sst_c_range = get_padded_range([reg_df[reg_id].SST, reg_pred_df[reg_id].SST])
+        sst_c_range = get_padded_range([climo_df.SST, climo_df.SST])
         sst_f_range = [c_to_f(x) for x in sst_c_range]
         
         # Add Invisible Dummy Trace for SST Fahrenheit
@@ -212,7 +270,7 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
         )
 
         # BOT Ranges
-        bot_c_range = get_padded_range([reg_df[reg_id].BOT, reg_pred_df[reg_id].BOT])
+        bot_c_range = get_padded_range([climo_df.BOT, climo_df.BOT])
         bot_f_range = [c_to_f(x) for x in bot_c_range]
 
         # Add Invisible Dummy Trace for BOT Fahrenheit
@@ -228,6 +286,10 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
             row=2, col=1, secondary_y=True
         )
 
+        # -- Add Vlines --
+        fig.add_vline(x=to_date(today.timetuple().tm_yday), line_width=3, line_dash="dash", line_color="grey")
+
+
         # --- LAYOUT UPDATES ---
         
         # Apply Ranges
@@ -238,22 +300,22 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
         # Row 2
         fig.update_yaxes(title_text="Bottom<br>(°C)", range=bot_c_range, row=2, col=1, secondary_y=False)
         fig.update_yaxes(title_text="Bottom<br>(°F)", range=bot_f_range, row=2, col=1, secondary_y=True, showgrid=False)
-
+        
         # Row 3
         fig.update_yaxes(title_text="Ice", row=3, col=1, secondary_y=False)
 
         # Row 4
-        fig.update_yaxes(title_text="Error<br>(°C)", row=4, col=1, secondary_y=False)
+        fig.update_yaxes(title_text="Error<br>(°C).", row=4, col=1, secondary_y=False)
 
         fig.update_layout(
-            height=400, 
-            width=800,
+            height=height, 
+            width=width,
             title_text=f"Region: {reg_id}",
             template="simple_white", 
             margin=dict(t=50, b=50, l=60, r=60), # Right margin space for 2nd axis
             showlegend=True, 
             legend=dict(
-                x=1.25,            # Far right
+                x=1.75,            # Far right
                 y=0.01,            # Far bottom
                 xanchor="right",   # Anchor the right edge of the box to x
                 yanchor="bottom",  # Anchor the bottom edge of the box to y
@@ -262,8 +324,14 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
                 borderwidth=1
             ),
         )
-
+    
         # X-Axis Month-Day Format
+        if size == 'large':
+            fig.update_xaxes(range=[f"{today - datetime.timedelta(days=7)}", 
+                                f"{today + datetime.timedelta(days=7)}"])
+        else:
+            fig.update_xaxes(range=[f"{today.strftime('%Y')}-03-01", 
+                                f"{today.strftime('%Y')}-07-01"])            
         fig.update_xaxes(tickformat="%b %d")
         
         # Spine Management
@@ -273,4 +341,4 @@ def timeseries_plotly_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
         fig.update_xaxes(showline=True,  row=4, col=1) 
 
         # fig.show()
-        fig.write_html(f"{config.OUTPUT_DIR}/{reg_id}.plotly.html")
+        fig.write_html(f"{config.OUTPUT_DIR}/{reg_id}.{pname}")

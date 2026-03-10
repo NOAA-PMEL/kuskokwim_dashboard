@@ -1,5 +1,6 @@
 # arctic_ice_forecaster/data_processing.py
 import logging
+import glob
 import geopandas as gpd
 import pandas as pd
 from shapely.geometry import Point
@@ -66,6 +67,89 @@ def reproject_to_360(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         lambda geom: transform(convert_to_360_transform, geom)
     )
     return gdf_transformed
+
+def process_file(filename):
+    """
+    Processes a single *proj file to extract region, date, and value information.
+    """
+    # Extract RegionID (6 characters following "ADFG_")
+    region_id = filename.split('ADFG_')[1][:6]
+    
+    # Extract value column name
+    val_col_name = filename.split('proj_')[-2][-3:]
+
+    # Read the file
+    df = pd.read_csv(filename)
+    
+    # Retrieve the year from the first column (YYYYMMDD)
+    year_val = int(str(int(df.iloc[0, 0]))[:4])
+    
+    # Remove the first column
+    df_data = df.drop(columns=[df.columns[0]])
+    
+    # Transpose the remaining array
+    df_transposed = df_data.transpose().reset_index()
+    df_transposed.columns = ['Month_Day', val_col_name]
+    
+    # Add Year and Calculate DOY
+    df_transposed['Year'] = year_val
+    date_str = df_transposed['Year'].astype(str) + df_transposed['Month_Day']
+    df_transposed['Yearday'] = pd.to_datetime(date_str, format='%Y%m%d').dt.dayofyear
+    
+    # Add RegionID column
+    df_transposed['RegionID'] = region_id
+    
+    return df_transposed[['Month_Day', 'Year', 'Yearday', 'RegionID', val_col_name]]
+
+def read_projected_data() -> pd.DataFrame:
+    """
+    Reads all *proj files from the data directory and combines them into a
+    single DataFrame with columns: regionid, doy, year, sst, ice, bot.
+    
+    Returns:
+        A combined DataFrame with all projected data.
+    """
+    
+    data_dir = config.DATA_DIR
+    proj_files = glob.glob(str(data_dir / "*proj*"))
+    proj_files =[f for f in proj_files if 'ICE' not in f and '_data' not in f]
+    
+    if not proj_files:
+        logging.warning(f"No *proj files found in {data_dir}")
+        return pd.DataFrame()
+    
+    dfs = []
+    for file_path in proj_files:
+        try:
+            # Dictionary to hold dataframes grouped by RegionID
+            region_groups = {}
+
+            for f in proj_files:
+                region_id = f.split('ADFG_')[1][:6]
+                df_proc = process_file(f)
+                
+                if region_id not in region_groups:
+                    region_groups[region_id] = df_proc
+                else:
+                    # Merge BOT and SST data for the same RegionID
+                    region_groups[region_id] = pd.merge(
+                        region_groups[region_id], 
+                        df_proc, 
+                        on=['Month_Day', 'Year', 'Yearday', 'RegionID'], 
+                        how='outer'
+                    )
+
+            # Append all unique RegionID datasets together
+            dfs = pd.concat(region_groups.values(), ignore_index=True)
+            logging.info(f"Processed {len(proj_files)} files into a combined DataFrame with shape: {dfs.shape}")
+        except Exception as e:
+            logging.error(f"Failed to read {file_path}: {e}")
+    
+    # if not dfs:
+    #     logging.warning("No valid projected data files were read")
+    #     return pd.DataFrame()
+
+    return dfs
 
 def load_temperature_data(file_path: str) -> pd.DataFrame:
     """
