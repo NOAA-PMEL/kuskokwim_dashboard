@@ -1,18 +1,58 @@
 # arctic_ice_forecaster/data_processing.py
 import logging
 import glob
+import os
 import geopandas as gpd
 import pandas as pd
+import datetime as dt
+from erddapy import ERDDAP
 from shapely.geometry import Point
 from arcgis.gis import GIS
 from arcgis.mapping import MapImageLayer
 from shapely.ops import transform
 from typing import Tuple
 
+import xarray as xr
+
 from . import config
 
 # Set up basic logging
 logging.basicConfig(filename=f'{config.LOG_FILE_NAME}',level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+def fetch_sst_data(start_date, end_date) -> xr.DataArray:
+        """Fetches JPL MUR SST data via ERDDAP."""
+        print("Fetching SST data from ERDDAP...")
+
+        # 1. Initialize with basic info
+        e = ERDDAP(
+            server="https://coastwatch.pfeg.noaa.gov/erddap",
+            protocol="griddap",
+            response="nc"
+        )
+        e.dataset_id = "jplMURSST41"
+
+        # 2. Set variables
+        e.variables = ["analysed_sst"]
+
+        # 3. Use the literal constraint keys expected by the griddap protocol
+        # This prevents the library from "guessing" and defaulting to global.
+        e.constraints.update({
+            "time>=": start_date,
+            "time<=": end_date,
+            "latitude>=": 55.0,
+            "latitude<=": 60.5,
+            "longitude>=": -168.0,
+            "longitude<=": -158.0,
+        })
+
+        # 4. Generate the URL manually and download via xarray
+        # This bypasses the picky 'to_xarray' internal checks
+        url = e.get_download_url()
+        print(f"Requesting data from: {url}")  # This helps us debug if it fails again
+
+        ds = e.to_xarray()
+
+        return ds.analysed_sst 
 
 def fetch_ice_data() -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
     """
@@ -101,7 +141,7 @@ def process_file(filename):
     
     return df_transposed[['Month_Day', 'Year', 'Yearday', 'RegionID', val_col_name]]
 
-def read_projected_data() -> pd.DataFrame:
+def combine_projected_data() -> pd.DataFrame:
     """
     Reads all *proj files from the data directory and combines them into a
     single DataFrame with columns: regionid, doy, year, sst, ice, bot.
@@ -151,6 +191,126 @@ def read_projected_data() -> pd.DataFrame:
 
     return dfs
 
+def generate_projected_data(date_valid: str) -> None:
+    """
+    Projected SST and BTM data generator
+    """
+    site_list = pd.read_csv(config.REGIONID_FILE)
+    site_list = site_list[site_list['active'] == 'y']
+
+    # 2. Define the seasonal window (March 5 to July 31)
+    start_m, start_d = 3, 5
+    end_m, end_d = 7, 31
+
+    for index, site in site_list.iterrows():
+
+        reg_id = site['regID']
+        shf_scale = site['shf_scale']
+
+        sst_file = f"{config.DATA_DIR}/{reg_id}_SST_{date_valid}.csv"
+        ice_file = f"{config.DATA_DIR}/{reg_id}_ICEproj_{date_valid}.csv"
+
+        # File Paths
+        shf_file = os.path.join(config.DATA_DIR, "KU2_dTQnet.csv")
+        output_file = os.path.join(config.DATA_DIR, f"{reg_id}_SSTproj.csv")
+
+        try:
+            df_sst = pd.read_csv(f'{sst_file}',dtype={'Time':str})
+            df_shf = pd.read_csv(shf_file,index_col='DOY').mean(axis=1).to_frame('Qnet')
+            df_ice = pd.read_csv(ice_file)
+
+            btm_data = {
+                'BTM': df_sst.mean(numeric_only=True).SST,
+                'Time': df_sst.iloc[-1]
+            }
+
+            result_df = pd.DataFrame(btm_data)
+            result_df.to_csv(output_file.replace('SSTproj','BTM'), index=False)
+            print(f"Successfully created: {output_file.replace('SSTproj','BTM')}")
+            print(f"Loading {reg_id}")
+        except Exception as e:
+            print(f"Skipping {reg_id}: {e}")
+            continue
+    
+        # Convert Time columns to datetime objects
+        df_sst['Time'] = pd.to_datetime(df_sst['Time'], format='%Y%m%d')
+        df_ice['Time'] = pd.to_datetime(df_ice['Time'], format='%Y%m%d')
+    
+        # Identify unique years in the historical SST data
+        sst_years = df_sst['Time'].dt.year.unique()
+    
+        # Determine the columns for the output (MMDD headers)
+        # We use a dummy leap year (2000) to generate all possible MMDD strings
+        dummy_range = pd.date_range("2000-03-05", "2000-07-31")
+        mmdd_cols = [d.strftime('%m%d') for d in dummy_range]
+    
+        all_results = []
+    
+        # Loop through each historical year to find initialization dates
+        for year in sst_years:
+            year_start = dt.datetime(year, start_m, start_d)
+            year_end = dt.datetime(year, end_m, end_d)
+            current_range = pd.date_range(year_start, year_end)
+    
+            for init_date in current_range:
+                # Check Sea Ice: Initialize only if no ice tomorrow
+                ice_row = df_ice[df_ice['Time'] == init_date]
+                if ice_row.empty or ice_row['ICE'].values[0] > 0:
+                    # print(f"Ice Detected {reg_id}: Skipping Prediction")
+                    continue
+    
+                # Get the SST 5-day trailing mean for the initialization date
+                # MATLAB: mean(T_hist.SST(isample-4:isample))
+                mask = (df_sst['Time'] <= init_date)
+                last_5_days = df_sst[mask].tail(5)
+    
+                if len(last_5_days) < 5:
+                    continue
+    
+                t_sample = last_5_days['SST'].mean()
+    
+                # Calculate Projection based on Heat Flux (SHF)
+                # Get DOY range for the remainder of the season
+                doy_start = init_date.timetuple().tm_yday
+                doy_end = year_end.timetuple().tm_yday
+    
+                # Slice SHF climatology
+                shf_slice = df_shf[(df_shf.index >= doy_start) & (df_shf.index <= doy_end)].copy()
+    
+                if shf_slice.empty:
+                    continue
+    
+                # Math: (Cumulative Qnet * Scale) shifted to match T_sample
+                shf_slice['proj'] = (shf_slice['Qnet'] * shf_scale).cumsum().to_frame()
+                t_adj = shf_slice['proj'].iloc[0] - t_sample
+                shf_slice['proj'] = shf_slice['proj'] - t_adj
+    
+                # Create a row for the final table
+                row_data = {"YYYYMMDD": init_date.strftime('%Y%m%d')}
+    
+                # Map projections back to the correct MMDD columns
+                for i, p_row in pd.DataFrame(shf_slice).iterrows():
+                    mmdd_key = (dt.datetime(year, 1, 1) + dt.timedelta(days=int(i) - 1)).strftime('%m%d')
+                    if mmdd_key in mmdd_cols:
+                        row_data[mmdd_key] = p_row['proj']
+    
+                all_results.append(row_data)
+
+        # 3. Create DataFrame and Write CSV
+        if all_results:
+            final_df = pd.DataFrame(all_results)
+            # Ensure columns are in order: YYYYMMDD then MMDD dates
+            ordered_cols = ["YYYYMMDD"] + mmdd_cols
+            final_df = final_df.reindex(columns=ordered_cols)
+
+            final_df.to_csv(output_file, index=False)
+            print(f"Successfully created: {output_file}")
+            final_df.to_csv(output_file.replace('SSTproj','BTMproj'), index=False)
+            print(f"Successfully created: {output_file.replace('SSTproj','BTMproj')}")
+            logging.info(f"Projected data saved to {output_file} ")
+        else:
+            logging.warning("No projected data to save.")
+
 def load_temperature_data(file_path: str) -> pd.DataFrame:
     """
     Loads sea surface temperature data from a CSV file.
@@ -167,6 +327,17 @@ def load_temperature_data(file_path: str) -> pd.DataFrame:
         return df
     except Exception as e:
         logging.error(f"Failed to load temperature data: {e}")
+        return pd.DataFrame()
+
+@staticmethod
+def load_region_metadata() -> pd.DataFrame:
+    """Reads the ADF&G region definitions from the CSV."""
+
+    try:
+        df = pd.read_csv(config.REGIONID_FILE, header=0, index_col='regID')
+        return df
+    except Exception as e:
+        logging.error(f"Failed to load region metadata: {e}")
         return pd.DataFrame()
 
 def jplsst_getter(adfg_id: str, erddap_url: str, sat_sst_time: str) -> Tuple[pd.DataFrame, pd.DataFrame, str]:

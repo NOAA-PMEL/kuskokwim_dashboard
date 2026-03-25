@@ -56,7 +56,23 @@ def main():
 
 
     logging.info("Generating region images...")
+    SNAP_DATE_START = dt.datetime.strftime(dt.datetime.today()-dt.timedelta(days=6),'%Y-%m-%dT09:00:00Z')
+    SNAP_DATE_END = dt.datetime.strftime(dt.datetime.today()-dt.timedelta(days=1),'%Y-%m-%dT09:00:00Z')
+    sst = data_processing.fetch_sst_data(SNAP_DATE_END, SNAP_DATE_END)
+    plotting.matplotlib_region_map(sst.squeeze(),cmap='RdYlBu_r',
+                                   label=f'Kuskokwim Surface Temperature {SNAP_DATE_END.split("T")[0]}',
+                                   filename=f'{config.OUTPUT_DIR}/SFC_full.png')
+    btm = data_processing.fetch_sst_data(SNAP_DATE_START, SNAP_DATE_END)
+    plotting.matplotlib_region_map(btm.mean(dim='time'),cmap='RdYlBu_r',
+                                   label='Kuskokwim Bottom Temperature',
+                                   filename=f'{config.OUTPUT_DIR}/BTM_full.png') 
+    plotting.matplotlib_region_map(sst.squeeze()-btm.mean(dim='time'),minmax=[-2,2],cmap='RdBu_r', 
+                                   label='Kuskokwim Temperature Difference (SFC-BTM)',
+                                   filename=f'{config.OUTPUT_DIR}/DIFF_full.png')    
 
+    logging.info("Calculating SST and BTM Projections...")
+    data_processing.generate_projected_data(date_valid=f"{SNAP_DATE_END.split('T')[0].replace('-','')}")
+    
     logging.info("Loading region temperatures...")
     df = data_processing.load_temperature_data('data/kuskokwim_historic_data.csv')
     pdf = data_processing.load_temperature_data('data/kuskokwim_projected_data.csv')

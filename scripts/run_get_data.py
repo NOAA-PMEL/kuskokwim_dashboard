@@ -27,9 +27,10 @@ def main():
         print(f"Dashboard Updated: {dt.datetime.now().strftime('%Y-%m-%d %H:%M')}", file=f)
 
     logging.info("Obtaining SST Values and Statistics...")
-    # iday = 0
+    config_df = pd.read_csv(config.REGIONID_FILE)
+    config_df = config_df[config_df['active']=='y']
     for iday in range(0,5,1):
-        for _i, rows in pd.read_csv(config.REGIONID_FILE).iterrows():
+        for _i, rows in config_df.iterrows():
             sat_sst_time = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=1+iday)).strftime('%Y-%m-%dT00:00:00Z')
             if iday ==0:
                 filedate = sat_sst_time.split('T')[0].replace('-','')
@@ -47,7 +48,7 @@ def main():
                     mean_woice['analysed_sst (degree_C)'].values[0], file = f, sep = ',')
 
     logging.info("Calculating Ice Flag Predictions...")
-    for _i, rows in pd.read_csv(config.REGIONID_FILE).iterrows():
+    for _i, rows in config_df.iterrows():
         _idf, mean_wice, mean_woice, sst_date = data_processing.jplsst_getter(rows['regID'],config.NOAA_SST_URL,sat_sst_time)
         df = pd.DataFrame()
         df['coords'] = list(zip(mean_wice['longitude (degrees_east)'],mean_wice['latitude (degrees_north)']))

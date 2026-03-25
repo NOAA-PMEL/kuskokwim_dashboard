@@ -25,7 +25,7 @@ def main():
     """
     Build a file that has a singular input format like the historic data
     """
-    projected_df = data_processing.read_projected_data()
+    projected_df = data_processing.combine_projected_data()
     logging.info(f"Combined projected data shape: {projected_df.shape}")
     projected_df.to_csv(config.PROJECTED_DATA_FILE, index=False)
 

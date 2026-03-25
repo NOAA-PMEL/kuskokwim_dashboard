@@ -4,8 +4,40 @@ import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
 from matplotlib import pyplot as plt 
-from . import config
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+from . import config, data_processing
 
+def matplotlib_region_map(sst_data: pd.DataFrame, minmax: list = [-1, 9], cmap: str = 'RdYlBu_r', label: str = '', filename: str = 'default.png'):
+    """Generates region map of sst/btmp with cartopy and saves to images directory."""
+
+    regions_df = data_processing.load_region_metadata()
+
+    fig = plt.figure(figsize=(10, 8))
+    ax = plt.axes(projection=ccrs.Miller())
+
+    # Set Map Extent
+    ax.set_extent([-168, -158, 55, 60.5], crs=ccrs.PlateCarree())
+    title = f"{label}"
+
+    # Plot SST Data
+    mesh = sst_data.plot.pcolormesh(
+        ax=ax, transform=ccrs.PlateCarree(),
+        cmap=cmap, vmin=minmax[0], vmax=minmax[1], add_colorbar=False
+    )
+
+    # Add Features (Coastline and Bathymetry Contours)
+    ax.add_feature(cfeature.GSHHSFeature(scale='high', levels=[1], facecolor='lightgray'))
+
+    # Add Colorbar
+    cbar = plt.colorbar(mesh, orientation='horizontal', pad=0.05, shrink=0.7)
+    cbar.set_label('Temperature (°C)', fontsize=14)
+
+    plt.title(title, fontsize=14 + 2)
+
+    plt.savefig(filename, dpi=300, bbox_inches='tight')
+    print(f"Saved: {config.IMAGE_DIR}/{filename}")
+    
 def timeseries_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
     """Generates timeseries plots for each ADFG region."""
     reg_df = {reg_id:df[df.RegionID.astype(str)==reg_id] for reg_id in config.ADFG_REGIONS}

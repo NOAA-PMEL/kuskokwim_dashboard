@@ -18,6 +18,7 @@ GEBCO_CONTOUR_TILES_URL = "https://tiles.arcgis.com/tiles/C8EMgrsFcRFL6LrL/arcgi
 NOAA_SST_WMS_URL = 'https://coastwatch.pfeg.noaa.gov/erddap/wms/jplMURSST41/request?'
 NOAA_SST_PNG_URL = "https://coastwatch.pfeg.noaa.gov/erddap/griddap/jplMURSST41.transparentPng"
 NOAA_SST_URL = "https://coastwatch.pfeg.noaa.gov/erddap/griddap/jplMURSST41.csvp?"
+COASTWATCH_ERDDAP_URL = "https://coastwatch.pfeg.noaa.gov/erddap/"
 
 # --- Map Settings ---
 INITIAL_MAP_LOCATION = (59.75, -164.25)
