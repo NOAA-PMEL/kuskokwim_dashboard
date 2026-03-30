@@ -3,6 +3,8 @@ import datetime
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import pandas as pd
+import xarray as xr
+import matplotlib as mpl
 from matplotlib import pyplot as plt 
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -26,7 +28,13 @@ def matplotlib_region_map(sst_data: pd.DataFrame, minmax: list = [-1, 9], cmap: 
         cmap=cmap, vmin=minmax[0], vmax=minmax[1], add_colorbar=False
     )
 
-    # Add Features (Coastline and Bathymetry Contours)
+    xdf = xr.load_dataset(config.GEBCO_BATHY)
+
+    mesh = xdf.where(xdf.elevation < -27).elevation.plot.pcolormesh(
+        ax=ax, transform=ccrs.PlateCarree(), add_colorbar=False, cmap=mpl.colors.ListedColormap(['white','darkgrey'])
+    )
+    
+    #  Add Features (Coastline and Bathymetry Contours)
     ax.add_feature(cfeature.GSHHSFeature(scale='high', levels=[1], facecolor='lightgray'))
 
     # Add Colorbar

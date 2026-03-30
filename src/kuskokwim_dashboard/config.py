@@ -24,6 +24,7 @@ COASTWATCH_ERDDAP_URL = "https://coastwatch.pfeg.noaa.gov/erddap/"
 INITIAL_MAP_LOCATION = (59.75, -164.25)
 INITIAL_MAP_ZOOM = 4
 ADFG_GRID_FILE = CONFIG_DIR / "grid_ADFG.geojson"
+GEBCO_BATHY = DATA_DIR / "gebco_subset.nc"
 
 # --- Analysis Parameters ---
 # TODO: Deprecate ADFG_REGIONS in favor of REGIONID_FILE contents
