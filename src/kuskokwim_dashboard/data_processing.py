@@ -231,8 +231,8 @@ def generate_projected_data(date_valid: str) -> None:
             }
 
             result_df = pd.DataFrame(btm_data)
-            result_df.to_csv(output_file.replace('SSTproj','BTM'), index=False)
-            print(f"Successfully created: {output_file.replace('SSTproj','BTM')}")
+            result_df.to_csv(str(output_file).replace('SSTproj','BTM'), index=False)
+            print(f"Successfully created: {str(output_file).replace('SSTproj','BTM')}")
             print(f"Loading {reg_id}")
         except Exception as e:
             print(f"Skipping {reg_id}: {e}")
