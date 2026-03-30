@@ -30,7 +30,7 @@ def matplotlib_region_map(sst_data: pd.DataFrame, minmax: list = [-1, 9], cmap: 
 
     xdf = xr.load_dataset(config.GEBCO_BATHY)
 
-    mesh = xdf.where(xdf.elevation < -27).elevation.plot.pcolormesh(
+    bathymesh = xdf.where(xdf.elevation < -27).elevation.plot.pcolormesh(
         ax=ax, transform=ccrs.PlateCarree(), add_colorbar=False, cmap=mpl.colors.ListedColormap(['white','darkgrey'])
     )
     
