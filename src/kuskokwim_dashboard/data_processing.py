@@ -396,7 +396,7 @@ def geojson_gridbuilder(df: pd.DataFrame) -> str:
     Args:
         df: DataFrame with columns: regID, active, W, E, N, S
         
-    Returns:
+    Returns:qq
         A formatted GeoJSON string representing grid regions as polygons.
     """
     json_header = """{
@@ -420,15 +420,16 @@ def geojson_gridbuilder(df: pd.DataFrame) -> str:
                 "temp_table": "<table><tr><th>SST</th><th>BotTemp</th><th>SeaIce</th></tr><tr><td>-1.8C/29F</td><td>-1.8C/29F</td><td>1 (ice)</td></tr></table>",
                 "link": f'<a href="{adfg_id}.html" target="_blank">more info</a>'
             }
-        # else:
-        #     properties = {
-        #         "ADFG": adfg_id,
-        #         "test": "grid",
-        #         "image_title": "<strong>click image below for indepth analysis</strong>",
-        #         "image": "<br><strong>Coming Soon</strong>",
-        #         "temp_table": "",
-        #         "link": "coming_soon"
-        #     }
+        else:
+            continue
+            properties = {
+                "ADFG": adfg_id,
+                "test": "grid",
+                "image_title": "<strong>click image below for indepth analysis</strong>",
+                "image": "<br><strong>Coming Soon</strong>",
+                "temp_table": "",
+                "link": "coming_soon"
+            }
         
         feature = {
             "type": "Feature",
