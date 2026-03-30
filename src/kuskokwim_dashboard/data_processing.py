@@ -207,12 +207,18 @@ def generate_projected_data(date_valid: str) -> None:
         reg_id = site['regID']
         shf_scale = site['shf_scale']
 
-        sst_file = f"{config.DATA_DIR}/{reg_id}_SST_{date_valid}.csv"
-        ice_file = f"{config.DATA_DIR}/{reg_id}_ICEproj_{date_valid}.csv"
+        sst_file = config.DATA_DIR / f"{reg_id}_SST_{date_valid}.csv"
+        ice_file = config.DATA_DIR / f"{reg_id}_ICEproj_{date_valid}.csv"
+        shf_file = config.DATA_DIR / "KU2_dTQnet.csv"
+        output_file = config.DATA_DIR / f"{reg_id}_SSTproj.csv"
 
-        # File Paths
-        shf_file = os.path.join(config.DATA_DIR, "KU2_dTQnet.csv")
-        output_file = os.path.join(config.DATA_DIR, f"{reg_id}_SSTproj.csv")
+        # Validate required input files exist before reading. Skip if missing.
+        missing_files = [str(p) for p in (sst_file, ice_file, shf_file) if not p.exists()]
+        if missing_files:
+            logging.warning(
+                f"Skipping {reg_id} because required files are missing: {', '.join(missing_files)}"
+            )
+            continue
 
         try:
             df_sst = pd.read_csv(f'{sst_file}',dtype={'Time':str})
