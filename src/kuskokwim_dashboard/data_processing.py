@@ -422,6 +422,7 @@ def geojson_gridbuilder(df: pd.DataFrame) -> str:
             }
         else:
             continue
+        #skip any inactive regions for now, but could add a different set of properties for them if desired
             properties = {
                 "ADFG": adfg_id,
                 "test": "grid",
