@@ -428,7 +428,7 @@ def geojson_gridbuilder(df: pd.DataFrame, date_valid: str = None) -> str:
             else:
                 sst_val_df =pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_SST_{date_valid}.csv")
                 btm_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_BTM_{date_valid}.csv")
-                ice_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_ICE_{date_valid}.csv")
+                ice_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_ICEproj_{date_valid}.csv")
                 sst_val = sst_val_df.mean(numeric_only=True).SST
                 btm_val = btm_val_df.mean(numeric_only=True).BTM
                 ice_val = ice_val_df.mean(numeric_only=True).ICE
