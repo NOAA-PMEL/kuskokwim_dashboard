@@ -271,7 +271,7 @@ def generate_projected_data(date_valid: str) -> None:
                 last_5_days = df_sst[mask].tail(5)
     
                 if len(last_5_days) < 5:
-                    
+
                     continue
     
                 t_sample = last_5_days['SST'].mean()
@@ -396,13 +396,14 @@ def ASIP_Prediction(df: pd.DataFrame, ice_pred: gpd.geodataframe) -> pd.DataFram
         print('Ice at location in prediction')
         return 1
 
-def geojson_gridbuilder(df: pd.DataFrame) -> str:
+def geojson_gridbuilder(df: pd.DataFrame, date_valid: str = None) -> str:
     """
     Converts a DataFrame of grid regions into a GeoJSON FeatureCollection.
     
     Args:
         df: DataFrame with columns: regID, active, W, E, N, S
-        
+        date_valid: str
+
     Returns:qq
         A formatted GeoJSON string representing grid regions as polygons.
     """
@@ -419,12 +420,25 @@ def geojson_gridbuilder(df: pd.DataFrame) -> str:
         coords = [[row.W, row.S], [row.E, row.S], [row.E, row.N], [row.W, row.N], [row.W, row.S]]
         
         if row['active'] == 'y':
+
+            if date_valid is None:
+                sst_val=-99
+                btm_val=-99
+                ice_val=-99
+            else:
+                sst_val_df =pd.read_csv(config.DATA_DIR / f"{adfg_id}_SST_{date_valid}.csv")
+                btm_val_df = pd.read_csv(config.DATA_DIR / f"{adfg_id}_BTM_{date_valid}.csv")
+                ice_val_df = pd.read_csv(config.DATA_DIR / f"{adfg_id}_ICE_{date_valid}.csv")
+                sst_val = sst_val_df.mean(numeric_only=True).SST
+                btm_val = btm_val_df.mean(numeric_only=True).BTM
+                ice_val = ice_val_df.mean(numeric_only=True).ICE
+
             properties = {
                 "ADFG": adfg_id,
                 "test": "pri_reg",
                 "image_title": "<strong>click image below for indepth analysis</strong>",
                 "image": f'<br><a href="{adfg_id}.html" target="_blank"><img src="{adfg_id}.image.png" width="250px"/>',
-                "temp_table": "<table><tr><th>SST</th><th>BotTemp</th><th>SeaIce</th></tr><tr><td>-1.8C/29F</td><td>-1.8C/29F</td><td>1 (ice)</td></tr></table>",
+                "temp_table": f"<table><tr><th>SST</th><th>BotTemp</th><th>SeaIce</th></tr><tr><td>{sst_val:.1f}C/{sst_val*9/5+32:.1f}F</td><td>{btm_val:.1f}C/{btm_val*9/5+32:.1f}F</td><td>{ice_val} (ice)</td></tr></table>",
                 "link": f'<a href="{adfg_id}.html" target="_blank">more info</a>'
             }
         else:
