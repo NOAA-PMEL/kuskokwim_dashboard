@@ -207,10 +207,10 @@ def generate_projected_data(date_valid: str) -> None:
         reg_id = site['regID']
         shf_scale = site['shf_scale']
 
-        sst_file = config.DATA_DIR / f"ADFG_{reg_id}_SST_{date_valid}.csv"
-        ice_file = config.DATA_DIR / f"ADFG_{reg_id}_ICEproj_{date_valid}.csv"
+        sst_file = config.DATA_DIR / f"{reg_id}_SST_{date_valid}.csv"
+        ice_file = config.DATA_DIR / f"{reg_id}_ICEproj_{date_valid}.csv"
         shf_file = config.DATA_DIR / "KU2_dTQnet.csv"
-        output_file = config.DATA_DIR / f"ADFG_{reg_id}_SSTproj_{date_valid}.csv"
+        output_file = config.DATA_DIR / f"{reg_id}_SSTproj_{date_valid}.csv"
 
         # Validate required input files exist before reading. Skip if missing.
         missing_files = [str(p) for p in (sst_file, ice_file, shf_file) if not p.exists()]
