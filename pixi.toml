@@ -12,7 +12,6 @@ get_data = "python scripts/run_get_data.py"
 get_build_ADFG_grid = "python scripts/run_build_ADFGgrid.py"
 populate_ADFG_grid = "python scripts/run_populate_ADFGgrid.py"
 #TODO: run projection code here
-build_projections = "python scripts/run_archive_builder.py"
 start = "python scripts/run_analysis.py"
 test = "pytest"
 lint = "ruff check ."
