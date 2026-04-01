@@ -1,6 +1,7 @@
 # scripts/run_analysis.py
 import logging
 import folium
+import pandas as pd
 import urllib.request
 import datetime as dt
 # 👇 Imports now use the new package name
@@ -73,6 +74,16 @@ def main():
     logging.info("Calculating SST and BTM Projections...")
     data_processing.generate_projected_data(date_valid=f"{SNAP_DATE_END.split('T')[0].replace('-','')}")
     
+    logging.info("Populate SST and BTM Grid Bubble...")
+    grid_df = pd.read_csv(config.REGIONID_FILE)    
+    grid_geojson = data_processing.geojson_gridbuilder(grid_df, date_valid=SNAP_DATE_END)
+
+    # --- File Output ---
+    with open(config.ADFG_GRID_FILE, 'w') as f:
+        f.write(grid_geojson)
+    logging.info(f"ADFG grid GeoJSON saved to {config.ADFG_GRID_FILE}")
+
+
     logging.info("Loading region temperatures...")
     df = data_processing.load_temperature_data('data/kuskokwim_historic_data.csv')
     pdf = data_processing.load_temperature_data('data/kuskokwim_projected_data.csv')
