@@ -79,8 +79,8 @@ def main():
 
     logging.info("Generating region timeseries...")
     plotting.timeseries_plots(df, pdf)
-    plotting.timeseries_plotly_plots(df, pdf,size='small')
-    plotting.timeseries_plotly_plots(df, pdf,size='large')
+    plotting.timeseries_plotly_plots(df, pdf,size='small',offseason=False)
+    plotting.timeseries_plotly_plots(df, pdf,size='large',offseason=True)
 
     logging.info("Workflow complete.")
 

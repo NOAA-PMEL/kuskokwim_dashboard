@@ -26,10 +26,6 @@ INITIAL_MAP_ZOOM = 4
 ADFG_GRID_FILE = CONFIG_DIR / "grid_ADFG.geojson"
 GEBCO_BATHY = DATA_DIR / "gebco_subset.nc"
 
-# --- Analysis Parameters ---
-# TODO: Deprecate ADFG_REGIONS in favor of REGIONID_FILE contents
-ADFG_REGIONS = ['625831', '635830', '635900', '645900', '645931'] 
-
 # --- Comprehensive Records File ---
 REGIONID_FILE = CONFIG_DIR / "Grid_Main.csv"
 

@@ -1,4 +1,5 @@
 # arctic_ice_forecaster/plotting.py
+import calendar
 import datetime
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
@@ -48,10 +49,17 @@ def matplotlib_region_map(sst_data: pd.DataFrame, minmax: list = [-1, 9], cmap: 
     
 def timeseries_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
     """Generates timeseries plots for each ADFG region."""
-    reg_df = {reg_id:df[df.RegionID.astype(str)==reg_id] for reg_id in config.ADFG_REGIONS}
-    reg_pred_df = {reg_id:pdf[pdf.RegionID.astype(str)==reg_id] for reg_id in config.ADFG_REGIONS}
 
-    for reg_id in config.ADFG_REGIONS:
+    grid_df = pd.read_csv(config.REGIONID_FILE)
+    grid_df = grid_df[grid_df['active'] == 'y']
+    ADFG_REGIONS = []
+    for _, row in grid_df.iterrows():
+        ADFG_REGIONS.append(row.regID.split('_')[1])
+
+    reg_df = {reg_id:df[df.RegionID.astype(str)==reg_id] for reg_id in ADFG_REGIONS}
+    reg_pred_df = {reg_id:pdf[pdf.RegionID.astype(str)==reg_id] for reg_id in ADFG_REGIONS}
+
+    for reg_id in ADFG_REGIONS:
         fig, ax = plt.subplots(nrows=3, ncols=1,figsize=(7,3), sharex=True)
         
         for year,groups in reg_df[reg_id].groupby('Year'):
@@ -77,8 +85,18 @@ def timeseries_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
 
 # --- HELPER FUNCTIONS ---
 def to_date(yearday_series):
-    """Maps Yearday (1-365) to a fixed leap year (2020)."""
-    return pd.to_datetime(yearday_series - 1, unit='D', origin='2020-01-01')
+    """Maps Yearday (1-365/366) to current year.
+
+    Uses the local current year so plots are shown in the active year context.
+    If current year is not leap and yearday==366, it clamps to 365.
+    """
+    current_year = datetime.datetime.now().year
+    yearday = pd.Series(yearday_series).astype(int)
+
+    if not calendar.isleap(current_year):
+        yearday = yearday.clip(upper=365)
+
+    return pd.to_datetime(yearday - 1, unit='D', origin=f'{current_year}-01-01')
 
 def c_to_f(c_val):
     """Converts Celsius to Fahrenheit."""
@@ -99,7 +117,7 @@ def get_padded_range(series_list, padding=0.05):
     
     return [y_min - (span * padding), y_max + (span * padding)]
 
-def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size='large') -> None:
+def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size: str='large', offseason: bool=False) -> None:
     """Generates plotly timeseries plots for each ADFG region.
 
     If size='small', generates compact plots.
@@ -116,10 +134,14 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size='la
 
     today = datetime.datetime.now()
 
-    for reg_id in config.ADFG_REGIONS:
+    grid_df = pd.read_csv(config.REGIONID_FILE)
+    grid_df = grid_df[grid_df['active'] == 'y']
+    for _, row in grid_df.iterrows():
+        reg_id = row.regID.split('_')[1]
         climo_df = reg_df.groupby('RegionID').get_group(int(reg_id))
         actual_df = act_df.groupby('RegionID').get_group(int(reg_id))
         # 1. Setup Subplots with Dual Axis Specs
+
         fig = make_subplots(
             rows=4, cols=1,
             shared_xaxes=True,
@@ -148,7 +170,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size='la
                 row=1, col=1, secondary_y=False
             )
         for year, groups in climo_df.groupby('Year'):
-            if year == 2024:
+            if year == today.timetuple().tm_year:
                 fig.add_trace(
                     go.Scatter(
                         x=to_date(groups.Yearday),
@@ -202,7 +224,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size='la
                 row=2, col=1, secondary_y=False
             )
         for year, groups in climo_df.groupby('Year'):
-            if year == 2024:
+            if year == today.timetuple().tm_year:
                 fig.add_trace(
                     go.Scatter(
                         x=to_date(groups.Yearday),
@@ -247,7 +269,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size='la
 
 
         for year, groups in climo_df.groupby('Year'):
-            if year == 2024:
+            if year == today.timetuple().tm_year:
                 fig.add_trace(
                     go.Scatter(
                         x=to_date(groups.Yearday),
@@ -327,7 +349,8 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size='la
         )
 
         # -- Add Vlines --
-        fig.add_vline(x=to_date(today.timetuple().tm_yday), line_width=3, line_dash="dash", line_color="grey")
+        today_date = to_date(pd.Series([today.timetuple().tm_yday])).iloc[0]
+        fig.add_vline(x=today_date, line_width=3, line_dash="dash", line_color="grey")
 
 
         # --- LAYOUT UPDATES ---
@@ -366,13 +389,18 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size='la
         )
     
         # X-Axis Month-Day Format
-        if size == 'large':
-            fig.update_xaxes(range=[f"{today - datetime.timedelta(days=7)}", 
-                                f"{today + datetime.timedelta(days=7)}"])
-        else:
+        if offseason:
             fig.update_xaxes(range=[f"{today.strftime('%Y')}-03-01", 
                                 f"{today.strftime('%Y')}-07-01"])            
-        fig.update_xaxes(tickformat="%b %d")
+            fig.update_xaxes(tickformat="%b %d")
+        else:
+            if size == 'large':
+                fig.update_xaxes(range=[f"{today - datetime.timedelta(days=7)}", 
+                                    f"{today + datetime.timedelta(days=7)}"])
+            else:
+                fig.update_xaxes(range=[f"{today.strftime('%Y')}-03-01", 
+                                    f"{today.strftime('%Y')}-07-01"])            
+            fig.update_xaxes(tickformat="%b %d")
         
         # Spine Management
         fig.update_xaxes(showline=False, row=1, col=1) 
