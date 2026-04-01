@@ -76,7 +76,7 @@ def main():
     
     logging.info("Populate SST and BTM Grid Bubble...")
     grid_df = pd.read_csv(config.REGIONID_FILE)    
-    grid_geojson = data_processing.geojson_gridbuilder(grid_df, date_valid=SNAP_DATE_END)
+    grid_geojson = data_processing.geojson_gridbuilder(grid_df, date_valid=SNAP_DATE_END.split('T')[0].replace('-',''))
 
     # --- File Output ---
     with open(config.ADFG_GRID_FILE, 'w') as f:
