@@ -390,8 +390,13 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size: st
     
         # X-Axis Month-Day Format
         if offseason:
-            fig.update_xaxes(range=[f"{today.strftime('%Y')}-03-01", 
-                                f"{today.strftime('%Y')}-07-01"])            
+         
+            if size == 'large':
+                fig.update_xaxes(range=[f"{today.strftime('%Y')}-01-01", 
+                                    f"{today.strftime('%Y')}-12-31"])   
+            else:
+                fig.update_xaxes(range=[f"{today.strftime('%Y')}-03-01", 
+                                    f"{today.strftime('%Y')}-07-01"])            
             fig.update_xaxes(tickformat="%b %d")
         else:
             if size == 'large':
@@ -407,6 +412,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size: st
         fig.update_xaxes(showline=False, row=2, col=1) 
         fig.update_xaxes(showline=False, row=3, col=1) 
         fig.update_xaxes(showline=True,  row=4, col=1) 
+        fig.show()
 
         # fig.show()
         fig.write_html(f"{config.OUTPUT_DIR}/{reg_id}.{pname}")
