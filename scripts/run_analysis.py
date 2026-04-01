@@ -30,10 +30,38 @@ def main():
         print(f"Latest Ice Prediction Date: {latest_pred_date}", file=f)
         print(f"Dashboard Updated: {dt.datetime.now().strftime('%Y-%m-%d %H:%M')}", file=f)
 
+
+    # --- Generate Maps ---
+    logging.info("Generating 'footprint.html' map...")
+    m1 = mapping.create_base_map(crs="EPSG3857", tiles="cartodb positron")
+    mapping.add_ice_concentration_layer(m1, gdf_conc_360.drop(columns=['idp_filedate','idp_ingestdate']))
+    mapping.add_ice_prediction_layer(m1, gdf_pred_360.drop(columns=['idp_filedate','idp_ingestdate']))
+    mapping.add_gebco_contours_layer(m1)
+    mapping.add_mooring_marker(m1)
+    mapping.add_adfg_grid_layer(m1)
+    folium.LayerControl().add_to(m1)
+    m1.save(config.OUTPUT_DIR / "footprint.html")
+
+    logging.info("Generating 'noaa_folium_map.html' map...")
+    m2 = mapping.create_base_map(crs="EPSG4326")
+    mapping.add_ice_concentration_layer(m2, gdf_conc_360.drop(columns=['idp_filedate','idp_ingestdate']))
+    mapping.add_ice_prediction_layer(m2, gdf_pred_360.drop(columns=['idp_filedate','idp_ingestdate']))
+    mapping.add_sst_wms_layer(m2)
+    mapping.add_adfg_grid_layer(m2, popup_on=False)
+    folium.LayerControl().add_to(m2)
+    m2.save(config.OUTPUT_DIR / "noaa_folium_map.html")
+    logging.info("Getting SST legend image from url.")
+    ## old erddap sst
+    # legend_url = mapping.get_sst_legend()
+    # urllib.request.urlretrieve(legend_url,'images/erddap_legend_sst.png')
+    # logging.info(f"URL for erddap legend: {legend_url}")
+
+
     logging.info("Generating region images...")
     SNAP_DATE_START = dt.datetime.strftime(dt.datetime.today()-dt.timedelta(days=6),'%Y-%m-%dT09:00:00Z')
     SNAP_DATE_END = dt.datetime.strftime(dt.datetime.today()-dt.timedelta(days=1),'%Y-%m-%dT09:00:00Z')
     sst = data_processing.fetch_sst_data(SNAP_DATE_END, SNAP_DATE_END)
+
     plotting.matplotlib_region_map(sst.squeeze(),cmap='RdYlBu_r',
                                    label=f'Kuskokwim Surface Temperature {SNAP_DATE_END.split("T")[0]}',
                                    filename=f'{config.OUTPUT_DIR}/SFC_full.png')
@@ -56,31 +84,6 @@ def main():
     with open(config.ADFG_GRID_FILE, 'w') as f:
         f.write(grid_geojson)
     logging.info(f"ADFG grid GeoJSON saved to {config.ADFG_GRID_FILE}")
-
-    # --- Generate Maps ---
-    logging.info("Generating 'footprint.html' map...")
-    m1 = mapping.create_base_map(crs="EPSG3857", tiles="cartodb positron")
-    mapping.add_ice_concentration_layer(m1, gdf_conc_360.drop(columns=['idp_filedate','idp_ingestdate']))
-    mapping.add_ice_prediction_layer(m1, gdf_pred_360.drop(columns=['idp_filedate','idp_ingestdate']))
-    mapping.add_gebco_contours_layer(m1)
-    mapping.add_mooring_marker(m1)
-    mapping.add_adfg_grid_layer(m1)
-    folium.LayerControl().add_to(m1)
-    m1.save(config.OUTPUT_DIR / "footprint.html")
-
-    logging.info("Generating 'noaa_folium_map.html' map...")
-    m2 = mapping.create_base_map(crs="EPSG4326")
-    mapping.add_ice_concentration_layer(m2, gdf_conc_360.drop(columns=['idp_filedate','idp_ingestdate']))
-    mapping.add_ice_prediction_layer(m2, gdf_pred_360.drop(columns=['idp_filedate','idp_ingestdate']))
-    mapping.add_sst_wms_layer(m2)
-    mapping.add_adfg_grid_layer(m2, popup_on=False)
-    folium.LayerControl().add_to(m2)
-    m2.save(config.OUTPUT_DIR / "noaa_folium_map.html")
-    logging.info("Getting SST legend image from url.")
-    legend_url = mapping.get_sst_legend()
-    urllib.request.urlretrieve(legend_url,'images/erddap_legend_sst.png')
-    logging.info(f"URL for erddap legend: {legend_url}")
-
 
 
     logging.info("Loading region temperatures...")
