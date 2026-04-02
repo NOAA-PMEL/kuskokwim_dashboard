@@ -312,8 +312,8 @@ def generate_projected_data(date_valid: str) -> None:
 
             final_df.to_csv(output_file, index=False)
             print(f"Successfully created: {output_file}")
-            final_df.to_csv(output_file.replace('SSTproj','BTMproj'), index=False)
-            print(f"Successfully created: {output_file.replace('SSTproj','BTMproj')}")
+            final_df.to_csv(str(output_file).replace('SSTproj','BTMproj'), index=False)
+            print(f"Successfully created: {str(output_file).replace('SSTproj','BTMproj')}")
             logging.info(f"Projected data saved to {output_file} ")
         else:
             logging.warning("No projected data to save.")
