@@ -141,7 +141,67 @@ def process_file(filename):
     
     return df_transposed[['Month_Day', 'Year', 'Yearday', 'RegionID', val_col_name]]
 
-def combine_projected_data() -> pd.DataFrame:
+def process_daily_files(filename):
+    """
+    Processes a single dailyfile to extract region, date, and value information.
+    """
+    # Extract RegionID (6 characters following "ADFG_")
+    region_id = filename.split('ADFG_')[1][:6]
+    
+    # Extract value column name
+    val_col_name = filename.split('proj_')[-2][-3:]
+
+    # Read the file
+    df = pd.read_csv(filename)
+    
+    # Retrieve the year from the first column (YYYYMMDD)
+    year_val = int(str(int(df.iloc[0, 0]))[:4])
+    date_str = str(int(df.iloc[0, 0]))
+
+    # Remove the first column   
+    df_data = df.drop(columns=[df.columns[0]])
+
+    #keep only first row of data since it's a projection
+    df_data = df_data.head(1)
+    df_data['Year'] = year_val
+    df_data['Yearday'] = pd.to_datetime(date_str, format='%Y%m%d').dt.dayofyear
+    df_data['RegionID'] = region_id
+
+    return df_data[['Year', 'Yearday', 'RegionID', val_col_name]]
+
+def combine_past_years(df: pd.DataFrame) -> pd.DataFrame:
+    data_dir = config.DATA_DIR
+    past_files = glob.glob(str(data_dir / f"*.csv"))
+    past_files =[f for f in past_files if 'proj' not in f and '_data' not in f]
+
+    dfs = []
+    for file_path in past_files:
+        try:
+            # Dictionary to hold dataframes grouped by RegionID
+            region_groups = {}
+
+            for f in past_files:
+                region_id = f.split('ADFG_')[1][:6]
+                df_proc = process_daily_files(f)
+                
+                if region_id not in region_groups:
+                    region_groups[region_id] = df_proc
+                else:
+                    # Merge BOT and SST data for the same RegionID
+                    region_groups[region_id] = pd.merge(
+                        region_groups[region_id], 
+                        df_proc, 
+                        on=['Year', 'Yearday', 'RegionID'], 
+                        how='outer'
+                    )
+
+            # Append all unique RegionID datasets together
+            dfs = pd.concat(region_groups.values(), ignore_index=True)
+            logging.info(f"Processed {len(past_files)} files into a combined DataFrame with shape: {dfs.shape}")
+        except Exception as e:
+            logging.error(f"Failed to read {file_path}: {e}")
+
+def combine_projected_data(date_valid: str) -> pd.DataFrame:
     """
     Reads all *proj files from the data directory and combines them into a
     single DataFrame with columns: regionid, doy, year, sst, ice, bot.
@@ -151,7 +211,7 @@ def combine_projected_data() -> pd.DataFrame:
     """
     
     data_dir = config.DATA_DIR
-    proj_files = glob.glob(str(data_dir / "*proj*"))
+    proj_files = glob.glob(str(data_dir / f"*proj*{date_valid}*"))
     proj_files =[f for f in proj_files if 'ICE' not in f and '_data' not in f]
     
     if not proj_files:

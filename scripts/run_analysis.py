@@ -58,6 +58,9 @@ def main():
         f.write(grid_geojson)
     logging.info(f"ADFG grid GeoJSON saved to {config.ADFG_GRID_FILE}")
 
+    projected_df = data_processing.combine_projected_data(date_valid=SNAP_DATE_END.split('T')[0].replace('-',''))
+    logging.info(f"Combined projected data shape: {projected_df.shape}")
+    projected_df.to_csv(config.PROJECTED_DATA_FILE, index=False)
 
     logging.info("Loading region temperatures...")
     df = data_processing.load_temperature_data('data/kuskokwim_historic_data.csv')

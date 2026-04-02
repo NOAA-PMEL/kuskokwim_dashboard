@@ -26,6 +26,7 @@ def test_convert_to_360_transform(input_lon, input_lat, expected_lon, expected_l
 
 def test_generate_projected_data_skips_missing_files(tmp_path, monkeypatch):
     """Ensure generate_projected_data checks for missing input files and skips gracefully."""
+    import pandas as pd
     from kuskokwim_dashboard import config
     from kuskokwim_dashboard.data_processing import generate_projected_data
 
