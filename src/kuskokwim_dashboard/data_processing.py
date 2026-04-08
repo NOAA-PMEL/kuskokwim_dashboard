@@ -141,15 +141,12 @@ def process_file(filename):
     
     return df_transposed[['Month_Day', 'Year', 'Yearday', 'RegionID', val_col_name]]
 
-def process_daily_files(filename):
+def process_daily_files(filename, val_col_name: str) -> pd.DataFrame:
     """
     Processes a single dailyfile to extract region, date, and value information.
     """
     # Extract RegionID (6 characters following "ADFG_")
     region_id = filename.split('ADFG_')[1][:6]
-    
-    # Extract value column name
-    val_col_name = filename.split('proj_')[-2][-3:]
 
     # Read the file
     df = pd.read_csv(filename)
@@ -160,46 +157,34 @@ def process_daily_files(filename):
 
     # Remove the first column   
     df_data = df.drop(columns=[df.columns[0]])
-
     #keep only first row of data since it's a projection
     df_data = df_data.head(1)
     df_data['Year'] = year_val
-    df_data['Yearday'] = pd.to_datetime(date_str, format='%Y%m%d').dt.dayofyear
+    df_data['Yearday'] = dt.datetime.strptime(date_str, '%Y%m%d').strftime('%j')
     df_data['RegionID'] = region_id
-
     return df_data[['Year', 'Yearday', 'RegionID', val_col_name]]
 
-def combine_past_years(df: pd.DataFrame) -> pd.DataFrame:
+def combine_past_years(data_type: str = 'SST') -> pd.DataFrame:
     data_dir = config.DATA_DIR
     past_files = glob.glob(str(data_dir / f"*.csv"))
-    past_files =[f for f in past_files if 'proj' not in f and '_data' not in f]
+    past_files =[f for f in past_files if 'proj' not in f.split('/')[-1] and 'Qnet' not in f.split('/')[-1]]
+    past_files =[f for f in past_files if 'SST' in f.split('/')[-1] ]
 
-    dfs = []
-    for file_path in past_files:
+    dfs = pd.DataFrame()
+    for f in past_files:
+        region_id = f.split('ADFG_')[1][:6]
         try:
-            # Dictionary to hold dataframes grouped by RegionID
-            region_groups = {}
-
-            for f in past_files:
-                region_id = f.split('ADFG_')[1][:6]
-                df_proc = process_daily_files(f)
-                
-                if region_id not in region_groups:
-                    region_groups[region_id] = df_proc
-                else:
-                    # Merge BOT and SST data for the same RegionID
-                    region_groups[region_id] = pd.merge(
-                        region_groups[region_id], 
-                        df_proc, 
-                        on=['Year', 'Yearday', 'RegionID'], 
-                        how='outer'
-                    )
-
-            # Append all unique RegionID datasets together
-            dfs = pd.concat(region_groups.values(), ignore_index=True)
-            logging.info(f"Processed {len(past_files)} files into a combined DataFrame with shape: {dfs.shape}")
+            df_proc = process_daily_files(f, data_type)
         except Exception as e:
-            logging.error(f"Failed to read {file_path}: {e}")
+            logging.error(f"Failed to process {f}: {e}")
+            continue
+        dfs = pd.concat([dfs,df_proc])
+
+        # Append all unique RegionID datasets together
+
+    logging.info(f"Processed {len(past_files)} files into a combined DataFrame with shape: {dfs.shape}")
+
+    return dfs
 
 def combine_projected_data(date_valid: str) -> pd.DataFrame:
     """
@@ -216,6 +201,7 @@ def combine_projected_data(date_valid: str) -> pd.DataFrame:
     
     if not proj_files:
         logging.warning(f"No *proj files found in {data_dir}")
+        print(f"No *proj files found in {data_dir}")
         return pd.DataFrame()
     
     dfs = []
@@ -287,7 +273,7 @@ def generate_projected_data(date_valid: str) -> None:
 
             btm_data = {
                 'BTM': df_sst.mean(numeric_only=True).SST,
-                'Time': df_sst.iloc[-1]
+                'Time': df_sst.iloc[-1]['Time']
             }
 
             result_df = pd.DataFrame(btm_data)
@@ -303,7 +289,7 @@ def generate_projected_data(date_valid: str) -> None:
 
             btm_data = {
                 'BTM': [-1.8],  # Default value when projection fails],
-                'Time': df_sst.iloc[-1]
+                'Time': df_sst.iloc[-1]['Time']
             }
 
             result_df = pd.DataFrame(btm_data)

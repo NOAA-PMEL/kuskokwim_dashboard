@@ -219,19 +219,6 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
                 ),
                 row=2, col=1, secondary_y=False
             )
-        for year, groups in climo_df.groupby('Year'):
-            if year == today.timetuple().tm_year:
-                fig.add_trace(
-                    go.Scatter(
-                        x=to_date(groups.Yearday),
-                        y=groups.BOT,
-                        mode='lines',
-                        line=dict(color='red', width=1.5),
-                        showlegend=False,
-                        hoverinfo='skip'
-                    ),
-                    row=2, col=1, secondary_y=False
-                )
         
         # 2B. Prediction (Celsius)
         fig.add_trace(

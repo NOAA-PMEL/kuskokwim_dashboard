@@ -31,6 +31,7 @@ REGIONID_FILE = CONFIG_DIR / "Grid_Main.csv"
 
 # --- Generated Files ---
 PROJECTED_DATA_FILE = DATA_DIR / "kuskokwim_projected_data.csv"
+CURRENT_YEAR_DATA_FILE = DATA_DIR / "kuskokwim_currentyear_data.csv"
 
 # --- Logging ---
 LOG_FILE_NAME = f"{LOG_DIR}/{dt.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
