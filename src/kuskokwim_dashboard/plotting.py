@@ -223,8 +223,8 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         # 2B. Prediction (Celsius)
         fig.add_trace(
             go.Scatter(
-                x=to_date(actual_df['Yearday']),
-                y=actual_df['BOT'],
+                x=to_date(pred_df['Yearday']),
+                y=pred_df['BOT'],
                 mode='lines',
                 line=dict(color='red', width=1.5, dash='dash'),
                 name='BOT Pred'
