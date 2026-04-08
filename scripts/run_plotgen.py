@@ -49,7 +49,7 @@ def main():
     pdf = data_processing.load_temperature_data('data/kuskokwim_projected_data.csv')
 
     logging.info("Generating region timeseries...")
-    plotting.timeseries_plots(df, pdf)
+    # plotting.timeseries_plots(df, pdf)
     plotting.timeseries_plotly_plots(df, pdf,size='small',offseason=True)
     plotting.timeseries_plotly_plots(df, pdf,size='large',offseason=True)
 
