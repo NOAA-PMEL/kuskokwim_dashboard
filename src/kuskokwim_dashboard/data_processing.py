@@ -295,9 +295,22 @@ def generate_projected_data(date_valid: str) -> None:
             print(f"Successfully created: {str(output_file).replace('SSTproj','BTM')}")
             print(f"Loading {reg_id}")
         except Exception as e:
-            print(f"Skipping {reg_id}: {e}")
-            continue
-    
+            print(f"Filling {reg_id}: {e}")
+
+            df_sst = pd.read_csv(f'{sst_file}',dtype={'Time':str})
+            df_shf = pd.read_csv(shf_file,index_col='DOY').mean(axis=1).to_frame('Qnet')
+            df_ice = pd.read_csv(ice_file)
+
+            btm_data = {
+                'BTM': [-1.8],  # Default value when projection fails],
+                'Time': df_sst.iloc[-1]
+            }
+
+            result_df = pd.DataFrame(btm_data)
+            result_df.to_csv(str(output_file).replace('SSTproj','BTM'), index=False)
+            print(f"Successfully created: {str(output_file).replace('SSTproj','BTM')}")
+            print(f"Loading {reg_id}")
+
         # Convert Time columns to datetime objects
         df_sst['Time'] = pd.to_datetime(df_sst['Time'], format='%Y%m%d')
         df_ice['Time'] = pd.to_datetime(df_ice['Time'], format='%Y%m%d')

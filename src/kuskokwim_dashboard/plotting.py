@@ -117,7 +117,7 @@ def get_padded_range(series_list, padding=0.05):
     
     return [y_min - (span * padding), y_max + (span * padding)]
 
-def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size: str='large', offseason: bool=False) -> None:
+def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df: pd.DataFrame, size: str='large', offseason: bool=False) -> None:
     """Generates plotly timeseries plots for each ADFG region.
 
     If size='small', generates compact plots.
@@ -140,6 +140,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size: st
         reg_id = row.regID.split('_')[1]
         climo_df = reg_df.groupby('RegionID').get_group(int(reg_id))
         actual_df = act_df.groupby('RegionID').get_group(int(reg_id))
+        pred_df = pred_df.groupby('RegionID').get_group(int(reg_id))
         # 1. Setup Subplots with Dual Axis Specs
 
         fig = make_subplots(
@@ -169,21 +170,16 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, size: st
                 ),
                 row=1, col=1, secondary_y=False
             )
-        for year, groups in climo_df.groupby('Year'):
-            if year == today.timetuple().tm_year:
-                fig.add_trace(
-                    go.Scatter(
-                        x=to_date(groups.Yearday),
-                        y=groups.SST,
-                        mode='lines',
-                        line=dict(color='black', width=1.5),
-                        showlegend=False,
-                        hoverinfo='skip'
-                    ),
-                    row=1, col=1, secondary_y=False
-                )
-                
-        # 1B. Prediction (Celsius)
+        fig.add_trace(
+            go.Scatter(
+                x=to_date([[pred_df]]['Yearday']),
+                y=[[pred_df]]['SST'],
+                mode='lines',
+                line=dict(color='black', width=1.5, dash='dash'),
+                name='SST Pred'
+            ),
+            row=1, col=1, secondary_y=False
+        )
         fig.add_trace(
             go.Scatter(
                 x=to_date(actual_df['Yearday']),
