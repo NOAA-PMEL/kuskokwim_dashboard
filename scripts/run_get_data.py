@@ -49,7 +49,12 @@ def main():
 
     logging.info("Calculating Ice Flag Predictions...")
     for _i, rows in config_df.iterrows():
-        _idf, mean_wice, mean_woice, sst_date = data_processing.jplsst_getter(rows['regID'],config.NOAA_SST_URL,sat_sst_time)
+        try:
+            _idf, mean_wice, mean_woice, sst_date = data_processing.jplsst_getter(rows['regID'],config.NOAA_SST_URL,sat_sst_time)
+        except Exception as e:
+            logging.error(f"Error obtaining SST data for {rows['regID']} on {sat_sst_time}: {e}")
+            continue
+
         df = pd.DataFrame()
         df['coords'] = list(zip(mean_wice['longitude (degrees_east)'],mean_wice['latitude (degrees_north)']))
         
