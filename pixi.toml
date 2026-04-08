@@ -12,7 +12,9 @@ get_data = "python scripts/run_get_data.py"
 get_build_ADFG_grid = "python scripts/run_build_ADFGgrid.py"
 populate_ADFG_grid = "python scripts/run_populate_ADFGgrid.py"
 #TODO: run projection code here
-start = "python scripts/run_analysis.py"
+archive = "python scripts/run_archive_builder.py"
+plotgen = "python scripts/run_plotgen.py"
+mapgen = "python scripts/run_mapgen.py"
 test = "pytest"
 lint = "ruff check ."
 
@@ -35,6 +37,8 @@ xarray = ">=2026.2.0,<2027"
 erddapy = ">=3.1.1,<4"
 cartopy = ">=0.25.0,<0.26"
 netcdf4 = ">=1.7.4,<2"
+jupyterlab = ">=4.5.6,<5"
+pixi-kernel = ">=0.7.1,<0.8"
 
 [pypi-dependencies]
 # Dependencies best installed from PyPI
