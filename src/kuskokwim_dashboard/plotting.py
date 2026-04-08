@@ -56,8 +56,8 @@ def timeseries_plots(df: pd.DataFrame, pdf: pd.DataFrame) -> None:
     for _, row in grid_df.iterrows():
         ADFG_REGIONS.append(row.regID.split('_')[1])
 
-    reg_df = {reg_id:df[df.regID.astype(str)==reg_id] for reg_id in ADFG_REGIONS}
-    reg_pred_df = {reg_id:pdf[pdf.regID.astype(str)==reg_id] for reg_id in ADFG_REGIONS}
+    reg_df = {reg_id:df[df.RegionID.astype(str)==reg_id] for reg_id in ADFG_REGIONS}
+    reg_pred_df = {reg_id:pdf[pdf.RegionID.astype(str)==reg_id] for reg_id in ADFG_REGIONS}
 
     for reg_id in ADFG_REGIONS:
         fig, ax = plt.subplots(nrows=3, ncols=1,figsize=(7,3), sharex=True)
