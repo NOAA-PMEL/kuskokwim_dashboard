@@ -172,8 +172,8 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
             )
         fig.add_trace(
             go.Scatter(
-                x=to_date([[pred_df]]['Yearday']),
-                y=[[pred_df]]['SST'],
+                x=to_date(pred_df['Yearday']),
+                y=pred_df['SST'],
                 mode='lines',
                 line=dict(color='black', width=1.5, dash='dash'),
                 name='SST Pred'
