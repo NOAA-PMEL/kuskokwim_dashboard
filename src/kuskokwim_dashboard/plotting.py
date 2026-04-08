@@ -140,7 +140,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         reg_id = row.regID.split('_')[1]
         climo_df = reg_df.groupby('RegionID').get_group(int(reg_id))
         actual_df = act_df.groupby('RegionID').get_group(int(reg_id))
-        pred_df = pred_df.groupby('RegionID').get_group(int(reg_id))
+        predicted_df = pred_df.groupby('RegionID').get_group(int(reg_id))
         # 1. Setup Subplots with Dual Axis Specs
 
         fig = make_subplots(
@@ -172,8 +172,8 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
             )
         fig.add_trace(
             go.Scatter(
-                x=to_date(pred_df['Yearday']),
-                y=pred_df['SST'],
+                x=to_date(predicted_df['Yearday']),
+                y=predicted_df['SST'],
                 mode='lines',
                 line=dict(color='black', width=1.5, dash='dash'),
                 name='SST Pred'
@@ -223,8 +223,8 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         # 2B. Prediction (Celsius)
         fig.add_trace(
             go.Scatter(
-                x=to_date(pred_df['Yearday']),
-                y=pred_df['BOT'],
+                x=to_date(predicted_df['Yearday']),
+                y=predicted_df['BOT'],
                 mode='lines',
                 line=dict(color='red', width=1.5, dash='dash'),
                 name='BOT Pred'
