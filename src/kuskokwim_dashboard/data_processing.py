@@ -272,13 +272,13 @@ def generate_projected_data(date_valid: str) -> None:
             df_ice = pd.read_csv(ice_file)
 
             btm_data = {
-                'BTM': df_sst.mean(numeric_only=True).SST,
+                'BOT': df_sst.mean(numeric_only=True).SST,
                 'Time': df_sst.iloc[-1]['Time']
             }
 
             result_df = pd.DataFrame(btm_data)
-            result_df.to_csv(str(output_file).replace('SSTproj','BTM'), index=False)
-            print(f"Successfully created: {str(output_file).replace('SSTproj','BTM')}")
+            result_df.to_csv(str(output_file).replace('SSTproj','BOT'), index=False)
+            print(f"Successfully created: {str(output_file).replace('SSTproj','BOT')}")
             print(f"Loading {reg_id}")
         except Exception as e:
             print(f"Filling {reg_id}: {e}")
@@ -288,13 +288,13 @@ def generate_projected_data(date_valid: str) -> None:
             df_ice = pd.read_csv(ice_file)
 
             btm_data = {
-                'BTM': [-1.8],  # Default value when projection fails],
+                'BOT': [-1.8],  # Default value when projection fails],
                 'Time': df_sst.iloc[-1]['Time']
             }
 
             result_df = pd.DataFrame(btm_data)
-            result_df.to_csv(str(output_file).replace('SSTproj','BTM'), index=False)
-            print(f"Successfully created: {str(output_file).replace('SSTproj','BTM')}")
+            result_df.to_csv(str(output_file).replace('SSTproj','BOT'), index=False)
+            print(f"Successfully created: {str(output_file).replace('SSTproj','BOT')}")
             print(f"Loading {reg_id}")
 
         # Convert Time columns to datetime objects
