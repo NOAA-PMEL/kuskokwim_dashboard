@@ -185,8 +185,8 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
                 x=to_date(actual_df['Yearday']),
                 y=actual_df['SST'],
                 mode='lines',
-                line=dict(color='black', width=1.5, dash='dash'),
-                name='SST Pred'
+                line=dict(color='black', width=1.5),
+                name='SST JPL Obs'
             ),
             row=1, col=1, secondary_y=False
         )
@@ -251,19 +251,19 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         )
 
 
-        for year, groups in climo_df.groupby('Year'):
-            if year == today.timetuple().tm_year:
-                fig.add_trace(
-                    go.Scatter(
-                        x=to_date(groups.Yearday),
-                        y=groups.ICE,
-                        mode='lines',
-                        line=dict(color='blue', width=1.5),
-                        showlegend=False,
-                        hoverinfo='skip'
-                    ),
-                    row=3, col=1, secondary_y=False
-                )
+        # for year, groups in climo_df.groupby('Year'):
+        #     if year == today.timetuple().tm_year:
+        #         fig.add_trace(
+        #             go.Scatter(
+        #                 x=to_date(groups.Yearday),
+        #                 y=groups.ICE,
+        #                 mode='lines',
+        #                 line=dict(color='blue', width=1.5),
+        #                 showlegend=False,
+        #                 hoverinfo='skip'
+        #             ),
+        #             row=3, col=1, secondary_y=False
+        #         )
                 
         # --- ROW 4: Prediction analysis - Single Axis ---
         # ice_climo = reg_df[reg_id].groupby('Yearday')['ICE'].median().reset_index()
