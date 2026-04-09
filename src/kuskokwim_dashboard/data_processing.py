@@ -371,8 +371,8 @@ def generate_projected_data(date_valid: str) -> None:
 
             final_df.to_csv(output_file, index=False)
             print(f"Successfully created: {output_file}")
-            final_df.to_csv(str(output_file).replace('SSTproj','BTMproj'), index=False)
-            print(f"Successfully created: {str(output_file).replace('SSTproj','BTMproj')}")
+            final_df.to_csv(str(output_file).replace('SSTproj','BOTproj'), index=False)
+            print(f"Successfully created: {str(output_file).replace('SSTproj','BOTproj')}")
             logging.info(f"Projected data saved to {output_file} ")
         else:
             logging.warning("No projected data to save.")
@@ -486,10 +486,10 @@ def geojson_gridbuilder(df: pd.DataFrame, date_valid: str = None) -> str:
                 ice_val=-99
             else:
                 sst_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_SST_{date_valid}.csv")
-                btm_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_BTM_{date_valid}.csv")
+                btm_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_BOT_{date_valid}.csv")
                 ice_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_ICEproj_{date_valid}.csv")
                 sst_val = sst_val_df.mean(numeric_only=True).SST
-                btm_val = btm_val_df.mean(numeric_only=True).BTM
+                btm_val = btm_val_df.mean(numeric_only=True).BOT
                 ice_val = ice_val_df.mean(numeric_only=True).ICE
 
             properties = {
