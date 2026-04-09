@@ -140,7 +140,12 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         reg_id = row.regID.split('_')[1]
         climo_df = reg_df.groupby('RegionID').get_group(int(reg_id))
         actual_df = act_df.groupby('RegionID').get_group(int(reg_id))
-        predicted_df = pred_df.groupby('RegionID').get_group(int(reg_id))
+        try:
+            predicted_df = pred_df.groupby('RegionID').get_group(int(reg_id))
+            prediction = True
+        except KeyError:
+            print(f"Predicted data for region {reg_id} empty.")
+            prediction = False
         # 1. Setup Subplots with Dual Axis Specs
 
         fig = make_subplots(
@@ -170,16 +175,18 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
                 ),
                 row=1, col=1, secondary_y=False
             )
-        fig.add_trace(
-            go.Scatter(
-                x=to_date(predicted_df['Yearday']),
-                y=predicted_df['SST'],
-                mode='lines',
-                line=dict(color='black', width=1.5, dash='dash'),
-                name='SST Pred'
-            ),
-            row=1, col=1, secondary_y=False
-        )
+        
+        if prediction:
+            fig.add_trace(
+                go.Scatter(
+                    x=to_date(predicted_df['Yearday']),
+                    y=predicted_df['SST'],
+                    mode='lines',
+                    line=dict(color='black', width=1.5, dash='dash'),
+                    name='SST Pred'
+                ),
+                row=1, col=1, secondary_y=False
+            )
         fig.add_trace(
             go.Scatter(
                 x=to_date(actual_df['Yearday']),
@@ -221,12 +228,13 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
             )
         
         # 2B. Prediction (Celsius)
-        fig.add_trace(
-            go.Scatter(
-                x=to_date(predicted_df['Yearday']),
-                y=predicted_df['BOT'],
-                mode='lines',
-                line=dict(color='red', width=1.5, dash='dash'),
+        if prediction:
+            fig.add_trace(
+                go.Scatter(
+                    x=to_date(predicted_df['Yearday']),
+                    y=predicted_df['BOT'],
+                    mode='lines',
+                    line=dict(color='red', width=1.5, dash='dash'),
                 name='BOT Pred'
             ),
             row=2, col=1, secondary_y=False
