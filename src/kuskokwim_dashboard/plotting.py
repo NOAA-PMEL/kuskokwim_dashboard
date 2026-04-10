@@ -361,23 +361,44 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         # Row 4
         fig.update_yaxes(title_text="Error<br>(°C).", row=4, col=1, secondary_y=False)
 
-        fig.update_layout(
-            height=height, 
-            width=width,
-            title_text=f"Region: {reg_id}",
-            template="simple_white", 
-            margin=dict(t=50, b=50, l=60, r=60), # Right margin space for 2nd axis
-            showlegend=True, 
-            legend=dict(
-                x=1.75,            # Far right
-                y=0.01,            # Far bottom
-                xanchor="right",   # Anchor the right edge of the box to x
-                yanchor="bottom",  # Anchor the bottom edge of the box to y
-                bgcolor="rgba(255, 255, 255, 0.8)", # Semi-transparent white background
-                bordercolor="Black",
-                borderwidth=1
-            ),
-        )
+        if size == 'small':
+            fig.update_layout(
+                height=height, 
+                width=width,
+                title_text=f"Region: {reg_id}",
+                template="simple_white", 
+                margin=dict(t=50, b=50, l=60, r=60), # Right margin space for 2nd axis
+                showlegend=True, 
+                legend=dict(
+                    x=1.75,            # Far right
+                    y=0.01,            # Far bottom
+                    xanchor="right",   # Anchor the right edge of the box to x
+                    yanchor="bottom",  # Anchor the bottom edge of the box to y
+                    bgcolor="rgba(255, 255, 255, 0.8)", # Semi-transparent white background
+                    bordercolor="Black",
+                    borderwidth=1
+                ),
+            )
+        else:
+            fig.update_layout(
+                height=height, 
+                width=width,
+                title_text=f"Region: {reg_id}",
+                template="simple_white", 
+                margin=dict(t=50, b=50, l=60, r=60), # Right margin space for 2nd axis
+                showlegend=True, 
+                legend=dict(
+                    x=0.5,            
+                    y=-0.2,            
+                    orientation="h",
+                    xanchor="center",   # Anchor the right edge of the box to x
+                    yanchor="bottom",  # Anchor the bottom edge of the box to y
+                    bgcolor="rgba(255, 255, 255, 0.8)", # Semi-transparent white background
+                    bordercolor="Black",
+                    borderwidth=1
+                ),
+            )            
+
     
         # X-Axis Month-Day Format
         if offseason:
@@ -391,8 +412,8 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
             fig.update_xaxes(tickformat="%b %d")
         else:
             if size == 'large':
-                fig.update_xaxes(range=[f"{today - datetime.timedelta(days=7)}", 
-                                    f"{today + datetime.timedelta(days=7)}"])
+                fig.update_xaxes(range=[f"{today - datetime.timedelta(days=14)}", 
+                                    f"{today + datetime.timedelta(days=14)}"])
             else:
                 fig.update_xaxes(range=[f"{today.strftime('%Y')}-03-01", 
                                     f"{today.strftime('%Y')}-07-01"])            
