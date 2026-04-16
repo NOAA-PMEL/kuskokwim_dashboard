@@ -140,8 +140,11 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
     if size == 'small':
         width, height = 400, 400
         pname = 'plotly.html'
+    elif size == 'medium':
+        width, height = 400, 600
+        pname = 'plotly.medium.html'
     else:
-        width, height = 500, 325
+        width, height = 400, 800
         pname = 'plotly.large.html'
 
     today = datetime.datetime.now()
@@ -398,42 +401,24 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         # Row 4
         # fig.update_yaxes(title_text="Error<br>(°C).", row=4, col=1, secondary_y=False)
 
-        if size == 'small':
-            fig.update_layout(
-                height=height, 
-                width=width,
-                title_text=f"Region: {reg_id}",
-                template="simple_white", 
-                margin=dict(t=50, b=50, l=60, r=60), # Right margin space for 2nd axis
-                showlegend=True, 
-                legend=dict(
-                    x=1.75,            # Far right
-                    y=0.01,            # Far bottom
-                    xanchor="right",   # Anchor the right edge of the box to x
-                    yanchor="bottom",  # Anchor the bottom edge of the box to y
-                    bgcolor="rgba(255, 255, 255, 0.8)", # Semi-transparent white background
-                    bordercolor="Black",
-                    borderwidth=1
-                ),
-            )
-        else:
-            fig.update_layout(
-                height=height, 
-                width=width,
-                title_text=f"Region: {reg_id}",
-                template="simple_white", 
-                margin=dict(t=50, b=50, l=60, r=60), # Right margin space for 2nd axis
-                showlegend=True, 
-                legend=dict(
-                    x=1.75,            # Far right
-                    y=0.01,            # Far bottom
-                    xanchor="right",   # Anchor the right edge of the box to x
-                    yanchor="bottom",  # Anchor the bottom edge of the box to y
-                    bgcolor="rgba(255, 255, 255, 0.8)", # Semi-transparent white background
-                    bordercolor="Black",
-                    borderwidth=1
-                ),
-            )            
+        fig.update_layout(
+            height=height, 
+            width=width,
+            title_text=f"Region: {reg_id}",
+            template="simple_white", 
+            margin=dict(t=50, b=50, l=60, r=60), # Right margin space for 2nd axis
+            showlegend=True, 
+            legend=dict(
+                x=1.75,            # Far right
+                y=0.01,            # Far bottom
+                xanchor="right",   # Anchor the right edge of the box to x
+                yanchor="bottom",  # Anchor the bottom edge of the box to y
+                bgcolor="rgba(255, 255, 255, 0.8)", # Semi-transparent white background
+                bordercolor="Black",
+                borderwidth=1
+            ),
+        )
+           
 
     
         # X-Axis Month-Day Format
