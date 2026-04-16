@@ -159,8 +159,8 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
             print(f"Predicted data for region {reg_id} empty.")
             prediction = False
             predicted_df = climo_df[climo_df['Year']==2020]
-            predicted_df['SST'] = -1.8
-            predicted_df['BOT'] = -1.8
+            predicted_df.loc[:,'SST'] = -1.8
+            predicted_df.loc[:,'BOT'] = -1.8
         # 1. Setup Subplots with Dual Axis Specs
 
         fig = make_subplots(
