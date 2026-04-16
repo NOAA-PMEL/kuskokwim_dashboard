@@ -11,7 +11,7 @@ import cartopy.crs as ccrs
 import cartopy.feature as cfeature
 from . import config, data_processing
 
-def matplotlib_region_map(sst_data: pd.DataFrame, minmax: list = [-1, 9], cmap: str = 'RdYlBu_r', label: str = '', filename: str = 'default.png'):
+def matplotlib_region_map(sst_data: pd.DataFrame, minmax: list = [-1, 9], cmap: str = 'RdYlBu_r', label: str = '', filename: str = 'default.png', layer: str = 'sfc') -> None:
     """Generates region map of sst/btmp with cartopy and saves to images directory."""
 
     regions_df = data_processing.load_region_metadata()
@@ -31,9 +31,10 @@ def matplotlib_region_map(sst_data: pd.DataFrame, minmax: list = [-1, 9], cmap: 
 
     xdf = xr.load_dataset(config.GEBCO_BATHY)
 
-    bathymesh = xdf.where(xdf.elevation < -27).elevation.plot.pcolormesh(
-        ax=ax, transform=ccrs.PlateCarree(), add_colorbar=False, cmap=mpl.colors.ListedColormap(['white','darkgrey'])
-    )
+    if layer != 'sfc':
+        bathymesh = xdf.where(xdf.elevation < -27).elevation.plot.pcolormesh(
+            ax=ax, transform=ccrs.PlateCarree(), add_colorbar=False, cmap=mpl.colors.ListedColormap(['white','darkgrey'])
+        )
     
     #  Add Features (Coastline and Bathymetry Contours)
     ax.add_feature(cfeature.GSHHSFeature(scale='high', levels=[1], facecolor='lightgray'))
@@ -43,6 +44,17 @@ def matplotlib_region_map(sst_data: pd.DataFrame, minmax: list = [-1, 9], cmap: 
     cbar.set_label('Temperature (°C)', fontsize=14)
 
     plt.title(title, fontsize=14 + 2)
+
+    if layer != 'sfc':
+        fig.text(
+            0.5,
+            0.02,
+            'bottom temperatures currently \n unavailable for depths >15 fathoms',
+            ha='center',
+            va='bottom',
+            fontsize=14,
+            color='black'
+        )
 
     plt.savefig(filename, dpi=300, bbox_inches='tight')
     print(f"Saved: {config.IMAGE_DIR}/{filename}")
@@ -149,14 +161,14 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         # 1. Setup Subplots with Dual Axis Specs
 
         fig = make_subplots(
-            rows=4, cols=1,
+            rows=3, cols=1,
             shared_xaxes=True,
             vertical_spacing=0.05,
             specs=[
                 [{"secondary_y": True}],  # Row 1: SST
                 [{"secondary_y": True}],  # Row 2: BOT
                 [{"secondary_y": False}],  # Row 3: ICE (Single axis)
-                [{"secondary_y": False}]  # Row 4: prediction stats
+                # [{"secondary_y": False}]  # Row 4: prediction stats
             ]
         )
 
@@ -277,29 +289,29 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         # ice_climo = reg_df[reg_id].groupby('Yearday')['ICE'].median().reset_index()
         # ice_climo.columns = [0, 1] 
 
-        fig.add_trace(
-            go.Scatter(
-                x=to_date(ice_climo[0]),
-                y=ice_climo[1] * 0,
-                mode='lines', 
-                fill='tozeroy', 
-                line=dict(color='black', width=0.5), 
-                showlegend=False,
-                hoverinfo='skip'
-            ),
-            row=4, col=1, secondary_y=False
-        )
+        # fig.add_trace(
+        #     go.Scatter(
+        #         x=to_date(ice_climo[0]),
+        #         y=ice_climo[1] * 0,
+        #         mode='lines', 
+        #         fill='tozeroy', 
+        #         line=dict(color='black', width=0.5), 
+        #         showlegend=False,
+        #         hoverinfo='skip'
+        #     ),
+        #     row=4, col=1, secondary_y=False
+        # )
 
-        fig.add_trace(
-            go.Scatter(
-                x=to_date(actual_df['Yearday']),
-                y=(actual_df['SST']*0),
-                mode='lines',
-                line=dict(color='black', width=1.5),
-                name='Accuracy Est.'
-            ),
-            row=4, col=1, secondary_y=False
-        )
+        # fig.add_trace(
+        #     go.Scatter(
+        #         x=to_date(actual_df['Yearday']),
+        #         y=(actual_df['SST']*0),
+        #         mode='lines',
+        #         line=dict(color='black', width=1.5),
+        #         name='Accuracy Est.'
+        #     ),
+        #     row=4, col=1, secondary_y=False
+        # )
 
         # --- RANGE CALCULATIONS & DUMMY TRACES ---
         # To force the secondary axis to show, we add an invisible trace 
@@ -359,7 +371,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         fig.update_yaxes(title_text="Ice", row=3, col=1, secondary_y=False)
 
         # Row 4
-        fig.update_yaxes(title_text="Error<br>(°C).", row=4, col=1, secondary_y=False)
+        # fig.update_yaxes(title_text="Error<br>(°C).", row=4, col=1, secondary_y=False)
 
         if size == 'small':
             fig.update_layout(
@@ -388,10 +400,9 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
                 margin=dict(t=50, b=50, l=60, r=60), # Right margin space for 2nd axis
                 showlegend=True, 
                 legend=dict(
-                    x=0.5,            
-                    y=-0.2,            
-                    orientation="h",
-                    xanchor="center",   # Anchor the right edge of the box to x
+                    x=1.75,            # Far right
+                    y=0.01,            # Far bottom
+                    xanchor="right",   # Anchor the right edge of the box to x
                     yanchor="bottom",  # Anchor the bottom edge of the box to y
                     bgcolor="rgba(255, 255, 255, 0.8)", # Semi-transparent white background
                     bordercolor="Black",
@@ -422,8 +433,8 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         # Spine Management
         fig.update_xaxes(showline=False, row=1, col=1) 
         fig.update_xaxes(showline=False, row=2, col=1) 
-        fig.update_xaxes(showline=False, row=3, col=1) 
-        fig.update_xaxes(showline=True,  row=4, col=1) 
+        fig.update_xaxes(showline=True, row=3, col=1) 
+        # fig.update_xaxes(showline=True,  row=4, col=1) 
         fig.show()
 
         # fig.show()

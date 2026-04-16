@@ -19,14 +19,14 @@ def main():
 
     plotting.matplotlib_region_map(sst.squeeze(),cmap='RdYlBu_r',
                                    label=f'Kuskokwim Surface Temperature {SNAP_DATE_END.split("T")[0]}',
-                                   filename=f'{config.OUTPUT_DIR}/SFC_full.png')
+                                   filename=f'{config.OUTPUT_DIR}/SFC_full.png',layer='sfc')
     btm = data_processing.fetch_sst_data(SNAP_DATE_START, SNAP_DATE_END)
     plotting.matplotlib_region_map(btm.mean(dim='time'),cmap='RdYlBu_r',
                                    label='Kuskokwim Bottom Temperature',
-                                   filename=f'{config.OUTPUT_DIR}/BTM_full.png') 
+                                   filename=f'{config.OUTPUT_DIR}/BTM_full.png',layer='sfc') 
     plotting.matplotlib_region_map(sst.squeeze()-btm.mean(dim='time'),minmax=[-2,2],cmap='RdBu_r', 
                                    label='Kuskokwim Temperature Difference (SFC-BTM)',
-                                   filename=f'{config.OUTPUT_DIR}/DIFF_full.png')    
+                                   filename=f'{config.OUTPUT_DIR}/DIFF_full.png',layer='diff')    
 
     logging.info("Calculating SST and BTM Projections...")
     data_processing.generate_projected_data(date_valid=f"{SNAP_DATE_END.split('T')[0].replace('-','')}")
