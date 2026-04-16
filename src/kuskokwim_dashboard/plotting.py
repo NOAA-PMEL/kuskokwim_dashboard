@@ -141,7 +141,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         width, height = 400, 400
         pname = 'plotly.html'
     else:
-        width, height = 600, 325
+        width, height = 500, 325
         pname = 'plotly.large.html'
 
     today = datetime.datetime.now()
@@ -428,20 +428,11 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
     
         # X-Axis Month-Day Format
         if offseason:
-         
-            if size == 'large':
-                fig.update_xaxes(range=[f"{today.strftime('%Y')}-01-01", 
-                                    f"{today.strftime('%Y')}-12-31"])   
-            else:
-                fig.update_xaxes(range=[f"{today.strftime('%Y')}-03-01", 
-                                    f"{today.strftime('%Y')}-07-01"])            
+            fig.update_xaxes(range=[f"{today.strftime('%Y')}-01-01", 
+                                    f"{today.strftime('%Y')}-12-31"])            
             fig.update_xaxes(tickformat="%b %d")
         else:
-            if size == 'large':
-                fig.update_xaxes(range=[f"{today - datetime.timedelta(days=14)}", 
-                                    f"{today + datetime.timedelta(days=14)}"])
-            else:
-                fig.update_xaxes(range=[f"{today.strftime('%Y')}-03-01", 
+            fig.update_xaxes(range=[f"{today.strftime('%Y')}-03-01", 
                                     f"{today.strftime('%Y')}-07-01"])            
             fig.update_xaxes(tickformat="%b %d")
         
