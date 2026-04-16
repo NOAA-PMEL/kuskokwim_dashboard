@@ -141,10 +141,10 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         width, height = 400, 400
         pname = 'plotly.html'
     elif size == 'medium':
-        width, height = 400, 600
+        width, height = 600, 400
         pname = 'plotly.medium.html'
     else:
-        width, height = 400, 800
+        width, height = 800, 400
         pname = 'plotly.large.html'
 
     today = datetime.datetime.now()
