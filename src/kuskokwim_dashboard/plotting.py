@@ -48,7 +48,7 @@ def matplotlib_region_map(sst_data: pd.DataFrame, minmax: list = [-1, 9], cmap: 
     if layer != 'sfc':
         fig.text(
             0.5,
-            0.02,
+            0.5,
             'bottom temperatures currently \n unavailable for depths >15 fathoms',
             ha='center',
             va='bottom',
@@ -158,6 +158,9 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         except KeyError:
             print(f"Predicted data for region {reg_id} empty.")
             prediction = False
+            predicted_df = climo_df[climo_df['Year']==2020]
+            predicted_df['SST'] = -1.8
+            predicted_df['BOT'] = -1.8
         # 1. Setup Subplots with Dual Axis Specs
 
         fig = make_subplots(
@@ -199,6 +202,18 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
                 ),
                 row=1, col=1, secondary_y=False
             )
+        else:
+            fig.add_trace(
+                go.Scatter(
+                    x=to_date(predicted_df.Yearday), 
+                    y=predicted_df.SST,
+                    mode='lines',
+                    line=dict(color='black', width=1.5, dash='dash'),
+                    name='SST Pred (Ice Present)'
+                ),
+                row=1, col=1, secondary_y=False
+            )
+
         fig.add_trace(
             go.Scatter(
                 x=to_date(actual_df['Yearday']),
