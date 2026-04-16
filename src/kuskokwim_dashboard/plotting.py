@@ -263,10 +263,20 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
                     mode='lines',
                     line=dict(color='red', width=1.5, dash='dash'),
                 name='BOT Pred'
-            ),
-            row=2, col=1, secondary_y=False
-        )
-
+                ),
+                row=2, col=1, secondary_y=False
+            )
+        else:
+            fig.add_trace(
+                go.Scatter(
+                    x=to_date(predicted_df.Yearday), 
+                    y=predicted_df.BOT,
+                    mode='lines',
+                    line=dict(color='red', width=1.5, dash='dash'),
+                    name='BOT Pred (Ice Present)'
+                ),
+                row=2, col=1, secondary_y=False
+            )
         # --- ROW 3: ICE (Blue) - Single Axis ---
         ice_climo = climo_df.groupby('Yearday')['ICE'].median().reset_index()
         ice_climo.columns = [0, 1] 
