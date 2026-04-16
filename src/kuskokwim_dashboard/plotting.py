@@ -209,7 +209,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
                     y=predicted_df.SST,
                     mode='lines',
                     line=dict(color='black', width=1.5, dash='dash'),
-                    name='SST Pred (Ice Present)'
+                    name='SST Pred \n(Ice Present)'
                 ),
                 row=1, col=1, secondary_y=False
             )
@@ -273,7 +273,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
                     y=predicted_df.BOT,
                     mode='lines',
                     line=dict(color='red', width=1.5, dash='dash'),
-                    name='BOT Pred (Ice Present)'
+                    name='BOT Pred \n(Ice Present)'
                 ),
                 row=2, col=1, secondary_y=False
             )
