@@ -312,6 +312,76 @@ def generate_projected_data(date_valid: str) -> None:
         all_results = []
     
         # Loop through each historical year to find initialization dates
+        # sfc
+        for year in sst_years:
+            year_start = dt.datetime(year, start_m, start_d)
+            year_end = dt.datetime(year, end_m, end_d)
+            current_range = pd.date_range(year_start, year_end)
+    
+            for init_date in current_range:
+                # Check Sea Ice: Initialize only if no ice tomorrow
+                ice_row = df_ice[df_ice['Time'] == init_date]
+                if ice_row.empty or ice_row['ICE'].values[0] > 0:
+                    # print(f"Ice Detected {reg_id}: Skipping Prediction")
+                    continue
+    
+                # Get the SST 5-day trailing mean for the initialization date
+                # MATLAB: mean(T_hist.SST(isample-4:isample))
+                mask = (df_sst['Time'] <= init_date)
+                last_5_days = df_sst[mask].tail(5)
+    
+                if len(last_5_days) < 5:
+
+                    continue
+    
+                t_sample = last_5_days['SST'].iloc[-1]
+    
+                # Calculate Projection based on Heat Flux (SHF)
+                # Get DOY range for the remainder of the season
+                doy_start = init_date.timetuple().tm_yday
+                doy_end = year_end.timetuple().tm_yday
+    
+                # Slice SHF climatology
+                shf_slice = df_shf[(df_shf.index >= doy_start) & (df_shf.index <= doy_end)].copy()
+    
+                if shf_slice.empty:
+                    continue
+    
+                # Math: (Cumulative Qnet * Scale) shifted to match T_sample
+                shf_slice['proj'] = (shf_slice['Qnet'] * shf_scale).cumsum().to_frame()
+                t_adj = shf_slice['proj'].iloc[0] - t_sample
+                shf_slice['proj'] = shf_slice['proj'] - t_adj
+    
+                # Create a row for the final table
+                row_data = {"YYYYMMDD": init_date.strftime('%Y%m%d')}
+    
+                # Map projections back to the correct MMDD columns
+                for i, p_row in pd.DataFrame(shf_slice).iterrows():
+                    mmdd_key = (dt.datetime(year, 1, 1) + dt.timedelta(days=int(i) - 1)).strftime('%m%d')
+                    if mmdd_key in mmdd_cols:
+                        row_data[mmdd_key] = p_row['proj']
+    
+                all_results.append(row_data)
+
+        # 3. Create DataFrame and Write CSV
+        if all_results:
+            final_df = pd.DataFrame(all_results)
+            # Ensure columns are in order: YYYYMMDD then MMDD dates
+            ordered_cols = ["YYYYMMDD"] + mmdd_cols
+            final_df = final_df.reindex(columns=ordered_cols)
+
+            final_df.to_csv(output_file, index=False)
+            print(f"Successfully created: {output_file}")
+            final_df.to_csv(str(output_file).replace('SSTproj','BOTproj'), index=False)
+            print(f"Successfully created: {str(output_file).replace('SSTproj','BOTproj')}")
+            logging.info(f"Projected data saved to {output_file} ")
+        else:
+            logging.warning("No projected data to save.")
+
+        all_results = []
+    
+        # Loop through each historical year to find initialization dates
+        # btm is 5day sst ave
         for year in sst_years:
             year_start = dt.datetime(year, start_m, start_d)
             year_end = dt.datetime(year, end_m, end_d)
@@ -376,6 +446,7 @@ def generate_projected_data(date_valid: str) -> None:
             logging.info(f"Projected data saved to {output_file} ")
         else:
             logging.warning("No projected data to save.")
+            
 
 def load_temperature_data(file_path: str) -> pd.DataFrame:
     """
