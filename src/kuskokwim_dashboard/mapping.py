@@ -95,13 +95,25 @@ def add_adfg_grid_layer(m: folium.Map, popup_on: bool = True):
     custom_css = """
     <style>
         .leaflet-popup-content-wrapper {
-            font-family: 'Courier New', Courier, monospace !important;
             background-color: #f8f9fa !important;
             border-radius: 0px !important;
         }
         .leaflet-popup-content {
             font-size: 1.1em !important;
             color: #333 !important;
+        }
+        .leaflet-popup-content table {
+            font-family: 'Segoe UI', Tahoma, sans-serif !important;
+            font-size: 18px !important;
+            width: 100% !important;
+        }
+        .leaflet-popup-content th {
+            font-weight: bold !important;
+            padding-right: 5px !important; /* Spacing between columns */
+            color: #555 !important;
+        }
+        .leaflet-popup-content td {
+            padding-right: 5px !important; /* Spacing between columns */
         }
     </style>
     """
