@@ -3,6 +3,7 @@ import folium
 import geopandas as gpd
 import datetime as dt
 from . import config
+from branca.element import Element
 
 def create_base_map(crs=None, tiles=None) -> folium.Map:
     """Creates and returns a basic Folium map centered on the region of interest."""
@@ -88,6 +89,25 @@ def add_adfg_grid_layer(m: folium.Map, popup_on: bool = True):
         control=True,
         name='ADFG Regions (Forecast)',
     ).add_to(m)
+
+
+    # Define global CSS for all leaflet popups
+    custom_css = """
+    <style>
+        .leaflet-popup-content-wrapper {
+            font-family: 'Courier New', Courier, monospace !important;
+            background-color: #f8f9fa !important;
+            border-radius: 0px !important;
+        }
+        .leaflet-popup-content {
+            font-size: 1.1em !important;
+            color: #333 !important;
+        }
+    </style>
+    """
+
+    # Inject into the map object
+    m.get_root().header.add_child(Element(custom_css))
 
 def add_gebco_contours_layer(m: folium.Map):
     """Adds bathymetry contour tiles from GEBCO."""
