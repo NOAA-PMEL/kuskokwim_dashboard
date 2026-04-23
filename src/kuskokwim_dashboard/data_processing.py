@@ -497,7 +497,7 @@ def geojson_gridbuilder(df: pd.DataFrame, date_valid: str = None) -> str:
                 "test": "pri_reg",
                 "image_title": "<strong>click image below for indepth analysis</strong>",
                 "image": f'<br><a href="{adfg_id}.html" target="_blank"><img src="{adfg_id}.image.png" width="250px"/>',
-                "temp_table": f"<table><tr><th>SST</th><th>BotTemp</th><th>SeaIce</th></tr><tr><td>{sst_val:.1f}C/{sst_val*9/5+32:.1f}F</td><td>{btm_val:.1f}C/{btm_val*9/5+32:.1f}F</td><td>{ice_val} (ice)</td></tr></table>",
+                "temp_table": f"<table><tr><th>SST</th><th></th><th>BotTemp</th><th></th><th>SeaIce</th></tr><tr><td>{sst_val:.1f}C/{sst_val*9/5+32:.1f}F</td><td></td><td>{btm_val:.1f}C/{btm_val*9/5+32:.1f}F</td><td></td><td>{ice_val} (ice)</td></tr></table>",
                 "link": f'<a href="{adfg_id}.html" target="_blank">more info</a>'
             }
         else:
