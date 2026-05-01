@@ -272,8 +272,8 @@ def generate_projected_data(date_valid: str) -> None:
             df_ice = pd.read_csv(ice_file)
 
             btm_data = {
-                'BOT': df_sst.mean(numeric_only=True).SST,
-                'Time': df_sst.iloc[-1]['Time']
+                'BOT': [df_sst.mean(numeric_only=True).SST],
+                'Time': [df_sst.iloc[0]['Time']]
             }
 
             result_df = pd.DataFrame(btm_data)
@@ -289,7 +289,7 @@ def generate_projected_data(date_valid: str) -> None:
 
             btm_data = {
                 'BOT': [-1.8],  # Default value when projection fails],
-                'Time': df_sst.iloc[-1]['Time']
+                'Time': [df_sst.iloc[0]['Time']]
             }
 
             result_df = pd.DataFrame(btm_data)
