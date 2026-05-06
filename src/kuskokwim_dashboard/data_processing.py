@@ -271,6 +271,10 @@ def generate_projected_data(date_valid: str) -> None:
             df_shf = pd.read_csv(shf_file,index_col='DOY').mean(axis=1).to_frame('Qnet')
             df_ice = pd.read_csv(ice_file)
 
+            #addresses instances of multiple attempts at retrieval on the same day (which appends to sst dataframe)
+            df_sst = df_sst.drop(df_sst[df_sst["Time"].str.contains("Time")].index)
+            df_sst['SST'] = pd.to_numeric(df_sst['SST'], errors='coerce')
+
             btm_data = {
                 'BOT': [df_sst.mean(numeric_only=True).SST],
                 'Time': [df_sst.iloc[0]['Time']]
