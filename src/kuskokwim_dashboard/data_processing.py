@@ -492,11 +492,6 @@ def geojson_gridbuilder(df: pd.DataFrame, date_valid: str = None) -> str:
                 sst_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_SST_{date_valid}.csv")
                 btm_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_BOT_{date_valid}.csv")
                 ice_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_ICEproj_{date_valid}.csv")
-
-                #duplicate data in one day
-                df_sst = sst_val_df.drop(sst_val_df[sst_val_df["Time"].str.contains("Time")].index)
-                df_sst['SST'] = pd.to_numeric(df_sst['SST'], errors='coerce')
-
                 sst_val = sst_val_df.mean(numeric_only=True).SST
                 btm_val = btm_val_df.mean(numeric_only=True).BOT
                 ice_val = ice_val_df.mean(numeric_only=True).ICE
