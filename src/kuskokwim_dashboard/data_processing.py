@@ -104,8 +104,8 @@ def reproject_to_360(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     logging.info("Reprojecting GeoDataFrame to prevent dateline wrapping...")
     gdf_transformed = gdf.copy()
     gdf_transformed['SHAPE'] = gdf_transformed['SHAPE'].apply(
-        lambda geom: transform(convert_to_360_transform, geom)
-    )
+            lambda geom: transform(convert_to_360_transform, geom) if geom is not None else None)
+        
     return gdf_transformed
 
 def process_file(filename):
