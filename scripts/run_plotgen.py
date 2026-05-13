@@ -28,9 +28,6 @@ def main():
                                    label='Kuskokwim Temperature Difference (SFC-BTM)',
                                    filename=f'{config.OUTPUT_DIR}/DIFF_full.png',layer='diff')    
 
-    logging.info("Calculating SST and BTM Projections...")
-    data_processing.generate_projected_data(date_valid=f"{SNAP_DATE_END.split('T')[0].replace('-','')}")
-    
     logging.info("Populate SST and BTM Grid Bubble...")
     grid_df = pd.read_csv(config.REGIONID_FILE)    
     grid_geojson = data_processing.geojson_gridbuilder(grid_df, date_valid=SNAP_DATE_END.split('T')[0].replace('-',''))

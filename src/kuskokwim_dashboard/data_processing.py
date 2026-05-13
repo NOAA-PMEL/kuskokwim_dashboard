@@ -104,7 +104,7 @@ def reproject_to_360(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     logging.info("Reprojecting GeoDataFrame to prevent dateline wrapping...")
     gdf_transformed = gdf.copy()
     gdf_transformed['SHAPE'] = gdf_transformed['SHAPE'].apply(
-            lambda geom: transform(convert_to_360_transform, geom) if geom is not None else None)
+            lambda geom: transform(convexrt_to_360_transform, geom) if geom is not None else None)
         
     return gdf_transformed
 
@@ -267,10 +267,13 @@ def generate_projected_data(date_valid: str) -> None:
             continue
 
         try:
-            df_sst = pd.read_csv(f'{sst_file}',dtype={'Time':str})
+            df_sst = pd.read_csv(f'{sst_file}',names=['Time', 'SST'])
+            df_sst['SST'] = pd.to_numeric(df_sst['SST'], errors='coerce')
+            df_sst = df_sst.dropna(subset=['SST'])
             df_shf = pd.read_csv(shf_file,index_col='DOY').mean(axis=1).to_frame('Qnet')
             df_ice = pd.read_csv(ice_file)
 
+            print('test', df_sst) 
             btm_data = {
                 'BOT': [df_sst.mean(numeric_only=True).SST],
                 'Time': [df_sst.iloc[0]['Time']]
@@ -283,7 +286,9 @@ def generate_projected_data(date_valid: str) -> None:
         except Exception as e:
             print(f"Filling {reg_id}: {e}")
 
-            df_sst = pd.read_csv(f'{sst_file}',dtype={'Time':str})
+            df_sst = pd.read_csv(f'{sst_file}',names=['Time', 'SST'])
+            df_sst['SST'] = pd.to_numeric(df_sst['SST'], errors='coerce')
+            df_sst = df_sst.dropna(subset=['SST'])
             df_shf = pd.read_csv(shf_file,index_col='DOY').mean(axis=1).to_frame('Qnet')
             df_ice = pd.read_csv(ice_file)
 
