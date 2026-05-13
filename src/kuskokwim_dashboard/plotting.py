@@ -129,7 +129,7 @@ def get_padded_range(series_list, padding=0.05):
     
     return [y_min - (span * padding), y_max + (span * padding)]
 
-def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df: pd.DataFrame, size: str='large', offseason: bool=False) -> None:
+def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df: pd.DataFrame, act_bot_df: pd.DataFrame, size: str='large', offseason: bool=False) -> None:
     """Generates plotly timeseries plots for each ADFG region.
 
     If size='small', generates compact plots.
@@ -155,6 +155,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         reg_id = row.regID.split('_')[1]
         climo_df = reg_df.groupby('RegionID').get_group(int(reg_id))
         actual_df = act_df.groupby('RegionID').get_group(int(reg_id))
+        actual_bot_df = act_bot_df.groupby('RegionID').get_group(int(reg_id))
         try:
             predicted_df = pred_df.groupby('RegionID').get_group(int(reg_id))
             prediction = True
@@ -283,8 +284,8 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
 
         fig.add_trace(
             go.Scatter(
-                x=to_date(actual_df['Yearday']),
-                y=actual_df['BOT'],
+                x=to_date(actual_bot_df['Yearday']),
+                y=actual_bot_df['BOT'],
                 mode='lines',
                 line=dict(color='red', width=1.5),
                 name='BOT Proxy Obs'

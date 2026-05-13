@@ -45,6 +45,7 @@ def main():
     df = data_processing.load_temperature_data('data/kuskokwim_historic_data.csv')
     pdf = data_processing.load_temperature_data('data/kuskokwim_projected_data.csv')
     cdf = data_processing.load_temperature_data('data/kuskokwim_currentyear_data.csv')
+    bdf = data_processing.load_temperature_data('data/kuskokwim_currentyear_data.bot.csv')
 
     logging.info("Generating region timeseries...")
     # plotting.timeseries_plots(df, pdf)

@@ -21,8 +21,12 @@ def main():
     """
 
     # --- Current Data ---
-    current_year_df = data_processing.combine_past_years()
+    current_year_df = data_processing.combine_past_years(data_type='SST')
     current_year_df.to_csv(config.CURRENT_YEAR_DATA_FILE, index=False)
+    logging.info(f"Combined current year data shape: {current_year_df.shape}")
+
+    current_year_df = data_processing.combine_past_years(data_type='BOT')
+    current_year_df.to_csv(config.CURRENT_YEAR_DATA_FILE.replace('.csv', '.bot.csv'), index=False)
     logging.info(f"Combined current year data shape: {current_year_df.shape}")
 
     # --- Projected Data ---

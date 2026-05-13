@@ -168,7 +168,7 @@ def combine_past_years(data_type: str = 'SST') -> pd.DataFrame:
     data_dir = config.DATA_DIR
     past_files = glob.glob(str(data_dir / f"*.csv"))
     past_files =[f for f in past_files if 'proj' not in f.split('/')[-1] and 'Qnet' not in f.split('/')[-1]]
-    past_files =[f for f in past_files if 'SST' in f.split('/')[-1] ]
+    past_files =[f for f in past_files if data_type in f.split('/')[-1] ]
 
     dfs = pd.DataFrame()
     for f in past_files:
