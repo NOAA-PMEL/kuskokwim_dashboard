@@ -280,6 +280,18 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
                 ),
                 row=2, col=1, secondary_y=False
             )
+
+        fig.add_trace(
+            go.Scatter(
+                x=to_date(actual_df['Yearday']),
+                y=actual_df['BOT'],
+                mode='lines',
+                line=dict(color='red', width=1.5),
+                name='BOT Proxy Obs'
+            ),
+            row=2, col=1, secondary_y=False
+        )
+
         # --- ROW 3: ICE (Blue) - Single Axis ---
         ice_climo = climo_df.groupby('Yearday')['ICE'].median().reset_index()
         ice_climo.columns = [0, 1] 
