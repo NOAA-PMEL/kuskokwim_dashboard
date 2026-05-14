@@ -151,6 +151,9 @@ def process_daily_files(filename, val_col_name: str) -> pd.DataFrame:
     # Read the file
     df = pd.read_csv(filename)
     
+    if val_col_name == 'BOT':
+        df = df[df.columns[::-1]]
+
     # Retrieve the year from the first column (YYYYMMDD)
     year_val = int(str(int(df.iloc[0, 0]))[:4])
     date_str = str(int(df.iloc[0, 0]))
@@ -169,7 +172,7 @@ def combine_past_years(data_type: str = 'SST') -> pd.DataFrame:
     past_files = glob.glob(str(data_dir / f"*.csv"))
     past_files =[f for f in past_files if 'proj' not in f.split('/')[-1] and 'Qnet' not in f.split('/')[-1]]
     past_files =[f for f in past_files if data_type in f.split('/')[-1] ]
-
+    
     dfs = pd.DataFrame()
     for f in past_files:
         region_id = f.split('ADFG_')[1][:6]
