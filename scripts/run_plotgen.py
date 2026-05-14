@@ -49,9 +49,9 @@ def main():
 
     logging.info("Generating region timeseries...")
     # plotting.timeseries_plots(df, pdf)
-    plotting.timeseries_plotly_plots(df, cdf, pdf,size='small',offseason=False)
-    plotting.timeseries_plotly_plots(df, cdf, pdf,size='medium',offseason=False)
-    plotting.timeseries_plotly_plots(df, cdf, pdf,size='large',offseason=False)
+    plotting.timeseries_plotly_plots(df, cdf, pdf, bdf, size='small',offseason=False)
+    plotting.timeseries_plotly_plots(df, cdf, pdf, bdf, size='medium',offseason=False)
+    plotting.timeseries_plotly_plots(df, cdf, pdf, bdf, size='large',offseason=False)
 
 
     logging.info("Workflow complete.")
