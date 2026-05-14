@@ -493,7 +493,7 @@ def geojson_gridbuilder(df: pd.DataFrame, date_valid: str = None) -> str:
                 btm_val=-99
                 ice_val=-99
             else:
-                sst_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_SST_{date_valid}.csv")
+                sst_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_SST_{date_valid}.csv", names=['Time', 'SST'])
                 sst_val_df['SST'] = pd.to_numeric(sst_val_df['SST'], errors='coerce')
                 sst_val_df = sst_val_df.dropna(subset=['SST'])
                 btm_val_df = pd.read_csv(config.DATA_DIR / f"ADFG_{adfg_id}_BOT_{date_valid}.csv")
