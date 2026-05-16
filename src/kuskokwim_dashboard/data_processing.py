@@ -276,7 +276,6 @@ def generate_projected_data(date_valid: str) -> None:
             df_shf = pd.read_csv(shf_file,index_col='DOY').mean(axis=1).to_frame('Qnet')
             df_ice = pd.read_csv(ice_file)
 
-            print('test', df_sst) 
             btm_data = {
                 'BOT': [df_sst.mean(numeric_only=True).SST],
                 'Time': [df_sst.iloc[0]['Time']]
@@ -318,7 +317,6 @@ def generate_projected_data(date_valid: str) -> None:
         mmdd_cols = [d.strftime('%m%d') for d in dummy_range]
     
         all_results = []
-    
         # Loop through each historical year to find initialization dates
         for year in sst_years:
             year_start = dt.datetime(year, start_m, start_d)
@@ -328,7 +326,9 @@ def generate_projected_data(date_valid: str) -> None:
             for init_date in current_range:
                 # Check Sea Ice: Initialize only if no ice tomorrow
                 ice_row = df_ice[df_ice['Time'] == init_date]
-                if ice_row.empty or ice_row['ICE'].values[0] > 0:
+                if ice_row.empty:
+                    pass
+                elif ice_row['ICE'].values[0] > 0:
                     # print(f"Ice Detected {reg_id}: Skipping Prediction")
                     continue
     
@@ -336,8 +336,8 @@ def generate_projected_data(date_valid: str) -> None:
                 # MATLAB: mean(T_hist.SST(isample-4:isample))
                 mask = (df_sst['Time'] <= init_date)
                 last_5_days = df_sst[mask].tail(5)
-    
-                if len(last_5_days) < 5:
+
+                if len(last_5_days) < 4:
 
                     continue
     
@@ -361,13 +361,13 @@ def generate_projected_data(date_valid: str) -> None:
     
                 # Create a row for the final table
                 row_data = {"YYYYMMDD": init_date.strftime('%Y%m%d')}
-    
+
                 # Map projections back to the correct MMDD columns
                 for i, p_row in pd.DataFrame(shf_slice).iterrows():
                     mmdd_key = (dt.datetime(year, 1, 1) + dt.timedelta(days=int(i) - 1)).strftime('%m%d')
                     if mmdd_key in mmdd_cols:
                         row_data[mmdd_key] = p_row['proj']
-    
+            
                 all_results.append(row_data)
 
         # 3. Create DataFrame and Write CSV
