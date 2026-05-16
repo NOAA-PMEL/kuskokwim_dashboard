@@ -376,6 +376,7 @@ def generate_projected_data(date_valid: str) -> None:
             # Ensure columns are in order: YYYYMMDD then MMDD dates
             ordered_cols = ["YYYYMMDD"] + mmdd_cols
             final_df = final_df.reindex(columns=ordered_cols)
+            final_df = final_df.loc[[0]]
 
             final_df.to_csv(output_file, index=False)
             print(f"Successfully created: {output_file}")
