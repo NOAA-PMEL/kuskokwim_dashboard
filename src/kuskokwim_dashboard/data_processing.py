@@ -149,10 +149,13 @@ def process_daily_files(filename, val_col_name: str) -> pd.DataFrame:
     region_id = filename.split('ADFG_')[1][:6]
 
     # Read the file
-    df = pd.read_csv(filename)
-    
     if val_col_name == 'BOT':
+        df = pd.read_csv(filename)
         df = df[df.columns[::-1]]
+    elif val_col_name == 'SST':
+        df = pd.read_csv(filename, names=['Time', val_col_name])
+    else:
+        raise ValueError(f"Unexpected val_col_name: {val_col_name}. Expected 'SST' or 'BOT'.")  
 
     # Retrieve the year from the first column (YYYYMMDD)
     year_val = int(str(int(df.iloc[0, 0]))[:4])
@@ -184,6 +187,7 @@ def combine_past_years(data_type: str = 'SST') -> pd.DataFrame:
         dfs = pd.concat([dfs,df_proc])
 
         # Append all unique RegionID datasets together
+    dfs.sort_values(by=['RegionID', 'Year', 'Yearday'], inplace=True)
 
     logging.info(f"Processed {len(past_files)} files into a combined DataFrame with shape: {dfs.shape}")
 
@@ -234,6 +238,8 @@ def combine_projected_data(date_valid: str) -> pd.DataFrame:
         except Exception as e:
             logging.error(f"Failed to read {file_path}: {e}")
     
+    dfs.sort_values(by=['RegionID', 'Year', 'Yearday'], inplace=True)
+
     # if not dfs:
     #     logging.warning("No valid projected data files were read")
     #     return pd.DataFrame()
