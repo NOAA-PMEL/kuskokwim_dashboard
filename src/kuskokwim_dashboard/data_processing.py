@@ -154,23 +154,36 @@ def process_daily_files(filename, val_col_name: str) -> pd.DataFrame:
         df = df[df.columns[::-1]]
     elif val_col_name == 'SST':
         df = pd.read_csv(filename, names=['Time', val_col_name])
+    elif val_col_name == 'SST':
+        df = pd.read_csv(filename, names=['Time', val_col_name])
+    elif val_col_name == 'ice_concentration':
+        df = pd.read_csv(filename, parse_dates=True, index_col='date')
     else:
-        raise ValueError(f"Unexpected val_col_name: {val_col_name}. Expected 'SST' or 'BOT'.")  
+        raise ValueError(f"Unexpected val_col_name: {val_col_name}. Expected 'SST', 'BOT', or 'ice_concentration'.")  
 
-    # Retrieve the year from the first column (YYYYMMDD)
-    year_val = int(str(int(df.iloc[0, 0]))[:4])
-    date_str = str(int(df.iloc[0, 0]))
+    if (val_col_name == 'SST') or (val_col_name == 'BOT'):
+        # Retrieve the year from the first column (YYYYMMDD)
+        year_val = int(str(int(df.iloc[0, 0]))[:4])
+        date_str = str(int(df.iloc[0, 0]))
 
-    # Remove the first column   
-    df_data = df.drop(columns=[df.columns[0]])
-    #keep only first row of data since it's a projection
-    df_data = df_data.head(1)
-    df_data['Year'] = year_val
-    df_data['Yearday'] = dt.datetime.strptime(date_str, '%Y%m%d').strftime('%j')
-    df_data['RegionID'] = region_id
-    return df_data[['Year', 'Yearday', 'RegionID', val_col_name]]
+        # Remove the first column   
+        df_data = df.drop(columns=[df.columns[0]])
+        #keep only first row of data since it's a projection
+        df_data = df_data.head(1)
+        df_data['Year'] = year_val
+        df_data['Yearday'] = dt.datetime.strptime(date_str, '%Y%m%d').strftime('%j')
+        df_data['RegionID'] = region_id
+        return df_data[['Year', 'Yearday', 'RegionID', val_col_name]]
+    elif val_col_name == 'ice_concentration':
+        df['Year'] = df.index.year
+        df['Yearday'] = df.index.dayofyear
+        df['RegionID'] = region_id
+        return df[['Year', 'Yearday', 'RegionID', val_col_name]]
+    else:
+        raise ValueError(f"Unexpected val_col_name: {val_col_name}. Expected 'SST', 'BOT', or 'ice_concentration'.")
 
 def combine_past_years(data_type: str = 'SST') -> pd.DataFrame:
+    """Combines all past daily files of a given data type (SST, BOT) into a single DataFrame."""
     data_dir = config.DATA_DIR
     past_files = glob.glob(str(data_dir / f"*.csv"))
     past_files =[f for f in past_files if 'proj' not in f.split('/')[-1] and 'Qnet' not in f.split('/')[-1]]
@@ -178,9 +191,30 @@ def combine_past_years(data_type: str = 'SST') -> pd.DataFrame:
     
     dfs = pd.DataFrame()
     for f in past_files:
-        region_id = f.split('ADFG_')[1][:6]
         try:
             df_proc = process_daily_files(f, data_type)
+        except Exception as e:
+            logging.error(f"Failed to process {f}: {e}")
+            continue
+        dfs = pd.concat([dfs,df_proc])
+
+        # Append all unique RegionID datasets together
+    dfs.sort_values(by=['RegionID', 'Year', 'Yearday'], inplace=True)
+
+    logging.info(f"Processed {len(past_files)} files into a combined DataFrame with shape: {dfs.shape}")
+
+    return dfs
+
+def combine_current_ice_data() -> pd.DataFrame:
+    data_dir = config.DATA_DIR
+    past_files = glob.glob(str(data_dir / f"*.csv"))
+    past_files =[f for f in past_files if 'proj' not in f.split('/')[-1] and 'Qnet' not in f.split('/')[-1]]
+    past_files =[f for f in past_files if 'daily_ice' in f.split('/')[-1] ]
+    
+    dfs = pd.DataFrame()
+    for f in past_files:
+        try:
+            df_proc = process_daily_files(f, 'ice_concentration')
         except Exception as e:
             logging.error(f"Failed to process {f}: {e}")
             continue
@@ -408,6 +442,23 @@ def load_temperature_data(file_path: str) -> pd.DataFrame:
         return df
     except Exception as e:
         logging.error(f"Failed to load temperature data: {e}")
+        return pd.DataFrame()
+
+def load_ice_data(file_path: str) -> pd.DataFrame:
+    """
+    Loads current year ice concentration data from a CSV file.
+
+    Args:
+        file_path: Path to the CSV file.
+    Returns:
+        A DataFrame containing the ice concentration data.
+    """
+    try:
+        logging.info(f"Loading ice data from {file_path}...")
+        df = pd.read_csv(file_path)
+        return df
+    except Exception as e:
+        logging.error(f"Failed to load ice data: {e}")
         return pd.DataFrame()
 
 @staticmethod

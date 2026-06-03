@@ -46,12 +46,13 @@ def main():
     pdf = data_processing.load_temperature_data('data/kuskokwim_projected_data.csv')
     cdf = data_processing.load_temperature_data('data/kuskokwim_currentyear_data.csv')
     bdf = data_processing.load_temperature_data('data/kuskokwim_currentyear_data.bot.csv')
+    idf = data_processing.load_ice_data('data/kuskokwim_currentyear_data.ice.csv')
 
     logging.info("Generating region timeseries...")
     # plotting.timeseries_plots(df, pdf)
-    plotting.timeseries_plotly_plots(df, cdf, pdf, bdf, size='small',offseason=False)
-    plotting.timeseries_plotly_plots(df, cdf, pdf, bdf, size='medium',offseason=False)
-    plotting.timeseries_plotly_plots(df, cdf, pdf, bdf, size='large',offseason=False)
+    plotting.timeseries_plotly_plots(df, cdf, pdf, bdf, idf, size='small',offseason=False)
+    plotting.timeseries_plotly_plots(df, cdf, pdf, bdf, idf, size='medium',offseason=False)
+    plotting.timeseries_plotly_plots(df, cdf, pdf, bdf, idf, size='large',offseason=False)
 
 
     logging.info("Workflow complete.")

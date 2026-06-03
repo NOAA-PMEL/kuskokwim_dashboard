@@ -129,7 +129,9 @@ def get_padded_range(series_list, padding=0.05):
     
     return [y_min - (span * padding), y_max + (span * padding)]
 
-def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df: pd.DataFrame, act_bot_df: pd.DataFrame, size: str='large', offseason: bool=False) -> None:
+def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, 
+                            pred_df: pd.DataFrame, act_bot_df: pd.DataFrame, 
+                            act_ice_df: pd.DataFrame, size: str='large', offseason: bool=False) -> None:
     """Generates plotly timeseries plots for each ADFG region.
 
     If size='small', generates compact plots.
@@ -156,6 +158,7 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         climo_df = reg_df.groupby('RegionID').get_group(int(reg_id))
         actual_df = act_df.groupby('RegionID').get_group(int(reg_id))
         actual_bot_df = act_bot_df.groupby('RegionID').get_group(int(reg_id))
+        actual_ice_df = act_ice_df.groupby('RegionID').get_group(int(reg_id))
         try:
             predicted_df = pred_df.groupby('RegionID').get_group(int(reg_id))
             prediction = True
@@ -312,19 +315,18 @@ def timeseries_plotly_plots(reg_df: pd.DataFrame, act_df: pd.DataFrame, pred_df:
         )
 
 
-        # for year, groups in climo_df.groupby('Year'):
-        #     if year == today.timetuple().tm_year:
-        #         fig.add_trace(
-        #             go.Scatter(
-        #                 x=to_date(groups.Yearday),
-        #                 y=groups.ICE,
-        #                 mode='lines',
-        #                 line=dict(color='blue', width=1.5),
-        #                 showlegend=False,
-        #                 hoverinfo='skip'
-        #             ),
-        #             row=3, col=1, secondary_y=False
-        #         )
+
+        fig.add_trace(
+            go.Scatter(
+                x=to_date(actual_ice_df['Yearday']),
+                y=actual_ice_df['ice_concentration'],
+                mode='lines',
+                line=dict(color='blue', width=1.5),
+                showlegend=False,
+                hoverinfo='skip'
+            ),
+            row=3, col=1, secondary_y=False
+        )
                 
         # --- ROW 4: Prediction analysis - Single Axis ---
         # ice_climo = reg_df[reg_id].groupby('Yearday')['ICE'].median().reset_index()
