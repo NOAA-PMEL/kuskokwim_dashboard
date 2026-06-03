@@ -29,9 +29,9 @@ def main():
     current_year_df.to_csv(config.CURRENT_YEAR_DATA_BOTTOM_FILE, index=False)
     logging.info(f"Combined current year data shape: {current_year_df.shape}")
 
-    current_year_df = data_processing.combine_current_ice_data()
-    current_year_df.to_csv(config.CURRENT_YEAR_DATA_ICE_FILE, index=False)
-    logging.info(f"Combined current year data shape: {current_year_df.shape}")
+    # current_year_df = data_processing.combine_current_ice_data()
+    # current_year_df.to_csv(config.CURRENT_YEAR_DATA_ICE_FILE, index=False)
+    # logging.info(f"Combined current year data shape: {current_year_df.shape}")
 
     # --- Projected Data ---
     """
